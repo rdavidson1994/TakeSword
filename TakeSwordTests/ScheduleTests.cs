@@ -2,7 +2,7 @@ using Moq;
 using NUnit.Framework;
 using TakeSword;
 
-namespace Tests
+namespace TakeSwordTests
 {
     [TestFixture]
     public class ScheduleTests
@@ -29,13 +29,6 @@ namespace Tests
         [Test]
         public void RunForTest()
         {
-            /*
-            var event1 = new Mock<Event>(MockBehavior.Strict);
-            event1.Setup(x => x.Happen());
-            var event2 = new Mock<Event>(MockBehavior.Strict);
-            event2.Setup(x => x.Happen());
-            var event3 = new Mock<Event>(MockBehavior.Strict);
-            */
 
             schedule.Add(ForbiddenEvent(), 300);
             schedule.Add(RequiredEvent(), 100);
