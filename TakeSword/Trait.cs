@@ -2,7 +2,11 @@
 {
     public class Trait { }
 
-    public class ItemTrait : Trait { }
+    public class ItemTrait : Trait
+    {
+        // in grams
+        public int Weight { get; set; }
+    }
 
     public class Food : Trait
     {
