@@ -4,29 +4,28 @@ using System.Linq;
 
 namespace TakeSword
 {
-    public class GameObject : ILocation
+    public class GameObject : ILocation, IGameObject
     {
         protected readonly HashSet<GameObject> contents;
+        public IName Name { get; set; }
         public IReadOnlyCollection<GameObject> Contents { get { return contents; } }
         public ILocation Location { get; protected set; }
-        public virtual IReadOnlyCollection<Trait> ClassTraits { get; } = new HashSet<Trait>();
+        public virtual IReadOnlyCollection<Trait> InitialTraits { get; set; } = new HashSet<Trait>();
         public ISchedule Schedule { get; protected set; }
         private HashSet<Trait> instanceTraits;
 
-        public GameObject(ISchedule schedule, ILocation location)
+        public GameObject(ILocation location)
         {
             Location = location;
             Location.BeEntered(this);
+            Schedule = Location.Schedule;
             contents = new HashSet<GameObject>();
-            Schedule = schedule;
         }
 
-        public GameObject(GameObject location) : this(location.Schedule, location) { }
-
-        public GameObject(ISchedule schedule) : this(schedule, new OffscreenLocation()) { }
+        public GameObject() : this(new OffscreenLocation()) { }
 
 
-        public TraitType GetTrait<TraitType>() where TraitType: Trait
+        public TraitType As<TraitType>() where TraitType: Trait
         {
             IReadOnlyCollection<Trait> candidates;
             if (instanceTraits != null)
@@ -35,7 +34,7 @@ namespace TakeSword
             }
             else
             {
-                candidates = ClassTraits;
+                candidates = InitialTraits;
             }
             foreach (Trait trait in candidates)
             {
@@ -47,11 +46,23 @@ namespace TakeSword
             return null;
         }
 
+        public string GetName(IGameObject viewer)
+        {
+            if (Name != null)
+            {
+                return Name.GetText(viewer);
+            }
+            else
+            {
+                return "unnamed";
+            }
+        }
+
         public bool AddTrait(Trait trait)
         {
             if (instanceTraits == null)
             {
-                instanceTraits = new HashSet<Trait>(ClassTraits);
+                instanceTraits = new HashSet<Trait>(InitialTraits);
             }
             return instanceTraits.Add(trait);
         }
@@ -60,6 +71,7 @@ namespace TakeSword
         {
             Location.BeExited(this);
             Location = location;
+            Schedule = Location.Schedule;
             Location.BeEntered(this);
         }
 
@@ -67,7 +79,7 @@ namespace TakeSword
         {
             if (instanceTraits == null)
             {
-                instanceTraits = new HashSet<Trait>(ClassTraits);
+                instanceTraits = new HashSet<Trait>(InitialTraits);
             }
             return instanceTraits.Remove(trait);
         }
@@ -102,23 +114,10 @@ namespace TakeSword
             ReactToAnnouncement(announcement);
             BroadcastAnnouncement(announcement);
         }
-    }
 
-    public class Item : GameObject
-    {
-
-        public override IReadOnlyCollection<Trait> ClassTraits { get; } = new HashSet<Trait>() { new ItemTrait() };
-
-        public Item(GameObject location) : base(location)
+        public IEnumerable<GameObject> NearbyObjects(long range)
         {
-        }
-
-        public Item(ISchedule schedule) : base(schedule)
-        {
-        }
-
-        public Item(ISchedule schedule, ILocation location) : base(schedule, location)
-        {
+            return contents;
         }
     }
 }

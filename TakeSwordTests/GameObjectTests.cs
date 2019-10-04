@@ -14,12 +14,12 @@ namespace TakeSwordTests
             throw new NotImplementedException();
         }
 
-        public void RunFor(long deltaTime)
+        public bool RunFor(long deltaTime)
         {
             throw new NotImplementedException();
         }
 
-        public void RunOnce()
+        public bool RunOnce()
         {
             throw new NotImplementedException();
         }
@@ -30,6 +30,9 @@ namespace TakeSwordTests
     {
         public bool wasEntered;
         public bool wasExited;
+
+        public ISchedule Schedule => new ScheduleStub();
+
         public bool BeEntered(GameObject gameObject)
         {
             wasEntered = true;
@@ -46,7 +49,13 @@ namespace TakeSwordTests
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerable<GameObject> NearbyObjects(long range)
+        {
+            throw new NotImplementedException();
+        }
     }
+
     [TestFixture]
     public class GameObjectTests
     {
@@ -55,8 +64,7 @@ namespace TakeSwordTests
         {
             var start = new LocationSpy();
             var finish = new LocationSpy();
-            ISchedule schedule = new ScheduleStub();
-            GameObject gameObject = new GameObject(schedule, start);
+            GameObject gameObject = new GameObject(start);
             gameObject.Move(finish);
             Assert.IsTrue(start.wasEntered);
             Assert.IsTrue(start.wasExited);
@@ -68,9 +76,9 @@ namespace TakeSwordTests
         {
             TraitStub trait = new TraitStub();
             ISchedule schedule = new ScheduleStub();
-            GameObject gameObject = new GameObject(schedule);
+            GameObject gameObject = new GameObject();
             gameObject.AddTrait(trait);
-            TraitStub retrievedTrait = gameObject.GetTrait<TraitStub>();
+            TraitStub retrievedTrait = gameObject.As<TraitStub>();
             Assert.AreEqual(trait, retrievedTrait);
         }
         [Test]
@@ -78,27 +86,27 @@ namespace TakeSwordTests
         {
             TraitStub trait = new TraitStub();
             ISchedule schedule = new ScheduleStub();
-            GameObject gameObject = new GameObject(schedule);
-            TraitStub retrievedTrait = gameObject.GetTrait<TraitStub>();
+            GameObject gameObject = new GameObject();
+            TraitStub retrievedTrait = gameObject.As<TraitStub>();
             Assert.IsNull(retrievedTrait);
         }
         [Test]
         public void RemoveTrait()
         {
-            ISchedule schedule = new ScheduleStub();
-            Item item = new Item(schedule);
-            Item item2 = new Item(schedule);
-            Trait trait = item.GetTrait<ItemTrait>();
-            item.RemoveTrait(trait);
-            Assert.IsNull(item.GetTrait<ItemTrait>());
-            Assert.IsNotNull(item2.GetTrait<ItemTrait>());
+            TraitStub traitStub = new TraitStub();
+            List<Trait> initialTraits = new List<Trait>() { traitStub };
+            GameObject item = new GameObject() { InitialTraits = initialTraits };
+            GameObject item2 = new GameObject() { InitialTraits = initialTraits };
+            item.RemoveTrait(traitStub);
+            Assert.IsNull(item.As<TraitStub>());
+            Assert.AreEqual(item2.As<TraitStub>(), traitStub);
         }
 
         [Test]
         public void ObjectAsLocation()
         {
             ISchedule schedule = new ScheduleStub();
-            GameObject gameObject = new GameObject(schedule);
+            GameObject gameObject = new GameObject();
             GameObject inner = new GameObject(gameObject);
             Assert.IsTrue(gameObject.Contents.Contains(inner));
             Assert.AreEqual(inner.Location, gameObject);

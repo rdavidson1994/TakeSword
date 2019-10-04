@@ -14,34 +14,41 @@ namespace TakeSword
             events = new LinkedList<Tuple<IEvent, long>>();
         }
 
-        public void RunOnce()
+        public bool RunOnce()
         {
+            if (events.Count == 0)
+            {
+                return false;
+            }
             var tuple = events.First.Value;
             IEvent nextEvent = tuple.Item1;
-            long nextTime = tuple.Item2;
+            currentTime = tuple.Item2;
             nextEvent.Happen();
             events.RemoveFirst(); // remove nextEvent
-            currentTime = nextTime;
+            return true;
         }
 
-        public void RunFor(long deltaTime)
+        public bool RunFor(long deltaTime)
         {
             long endTime = currentTime + deltaTime;
-            bool running = true;
-            while (running)
+            while (true)
             {
-                var (nextEvent, nextTime) = events.First?.Value;
-                if (nextEvent != null && nextTime <= endTime)
+                if (events.Count == 0)
                 {
+                    return currentTime == endTime;
+                }
+                var (nextEvent, nextTime) = events.First.Value;
+                if (nextTime <= endTime)
+                {
+                    currentTime = nextTime;
                     nextEvent.Happen();
                     events.RemoveFirst();
                 }
                 else
                 {
                     currentTime = endTime;
-                    running = false;
+                    return true;
                 }
-
             }
         }
 
