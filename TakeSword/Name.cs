@@ -6,7 +6,7 @@ namespace TakeSword
 {
     public interface IName
     {
-        bool Matches(IGameObject viewer);
+        bool Matches(IGameObject viewer, string text);
         string GetText(IGameObject viewer);
     }
     public class SimpleName : IName
@@ -21,9 +21,9 @@ namespace TakeSword
             return name;
         }
 
-        public bool Matches(IGameObject viewer)
+        public bool Matches(IGameObject viewer, string text)
         {
-            throw new NotImplementedException();
+            return text == name;
         }
     }
 }

@@ -2,11 +2,6 @@
 
 namespace TakeSword
 {
-    public interface IEvent
-    {
-        void Happen();
-    }
-
     public class MessageEvent : IEvent
     {
         private readonly string message;
