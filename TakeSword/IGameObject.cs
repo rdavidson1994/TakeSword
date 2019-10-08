@@ -6,9 +6,9 @@ namespace TakeSword
     {
         string GetName(IGameObject viewer);
         ILocation Location { get; }
-        bool AddTrait(Trait trait);
+        bool AddTrait<T>(T trait) where T: Trait;
         TraitType As<TraitType>() where TraitType : Trait;
         void Move(ILocation location);
-        bool RemoveTrait(Trait trait);
+        bool RemoveTrait<T>() where T : Trait;
     }
 }

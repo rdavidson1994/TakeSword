@@ -4,7 +4,6 @@
     {
         long OnsetTime { get; } //ms
         long CooldownTime { get; } //ms
-        IActionOutcome Attempt();
-        IActionOutcome IsValid();
+        ActionOutcome Attempt();
     }
 }

@@ -2,29 +2,32 @@
 
 namespace TakeSword
 {
-    public interface IActionOutcome
-    {
-        IAction Action { get; }
-        bool Success();
-    }
-
-    public class SuccessfulOutcome : IActionOutcome
+    public abstract class ActionOutcome
     {
         public IAction Action { get; protected set; }
+        public abstract bool Success();
+        public static implicit operator bool(ActionOutcome outcome)
+        {
+            return outcome.Success();
+        }
+    }
+
+    public class SuccessfulOutcome : ActionOutcome
+    {
+        
         public SuccessfulOutcome(IAction action)
         {
             this.Action = action;
         }
-        public bool Success()
+        public override bool Success()
         {
             return true;
         }
     }
 
-    public class FailedOutcome : IActionOutcome
+    public class FailedOutcome : ActionOutcome
     {
-        public IAction Action { get; protected set; }
-        public bool Success()
+        public override bool Success()
         {
             return false;
         }
@@ -33,7 +36,7 @@ namespace TakeSword
         public FailedOutcome(string reason, IAction action)
         {
             Reason = reason;
-            Action = action;
+
         }
     }
 
@@ -50,21 +53,21 @@ namespace TakeSword
         {
             return Actor;
         }
-        protected IActionOutcome Succeed()
+        protected ActionOutcome Succeed()
         {
             return new SuccessfulOutcome(this);
         }
-        protected IActionOutcome Fail(string reason)
+        protected ActionOutcome Fail(string reason)
         {
             return new FailedOutcome(reason, this);
         }
 
-        public IActionOutcome Attempt()
+        public ActionOutcome Attempt()
         {
             return Do(false);
         }
 
-        public IActionOutcome IsValid()
+        public ActionOutcome IsValid()
         {
             return Do(true);
         }
@@ -73,7 +76,12 @@ namespace TakeSword
         {
             return gameObject.GetName(Actor);
         }
-        protected abstract IActionOutcome Do(bool isPreflight);
+        protected abstract ActionOutcome Do(bool isPreflight);
+
+        public IRoutine AsRoutine()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
     public abstract class TargetedAction : PhysicalAction
@@ -98,7 +106,7 @@ namespace TakeSword
     public class Take : TargetedAction
     {
         public Take(PhysicalActor actor, GameObject target) : base(actor, target) { }
-        protected override IActionOutcome Do(bool isPreflight)
+        protected override ActionOutcome Do(bool isPreflight)
         {
             if (!Actor.CanReach(Target))
             {
@@ -121,7 +129,7 @@ namespace TakeSword
     {
         public Drop(PhysicalActor actor, GameObject target) : base(actor, target) { }
 
-        protected override IActionOutcome Do(bool isPreflight)
+        protected override ActionOutcome Do(bool isPreflight)
         {
             if (!Actor.HasItem(Target))
             {

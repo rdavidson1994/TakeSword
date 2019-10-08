@@ -2,6 +2,28 @@
 
 namespace TakeSword
 {
+    public static class BanditFactory
+    {
+        static FrozenTraitStore banditTraits = new LiveTraitStore() {
+
+        }.Freeze();
+
+        static FrozenTraitStore swordTraits = new LiveTraitStore()
+        {
+            new Weapon()
+            {
+                DamageType = DamageType.Slashing,
+                DamageMultiplier = 4.0
+            }
+        }.Freeze();
+
+        public static PhysicalActor MakeBandit()
+        {
+            PhysicalActor bandit = new PhysicalActor(traits: banditTraits);
+            GameObject sword = new GameObject(traits: swordTraits, location: bandit);
+            return bandit;
+        }
+    }
     public class MessageEvent : IEvent
     {
         private readonly string message;

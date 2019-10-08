@@ -94,10 +94,15 @@ namespace TakeSwordTests
         public void RemoveTrait()
         {
             TraitStub traitStub = new TraitStub();
-            List<Trait> initialTraits = new List<Trait>() { traitStub };
-            GameObject item = new GameObject() { InitialTraits = initialTraits };
-            GameObject item2 = new GameObject() { InitialTraits = initialTraits };
-            item.RemoveTrait(traitStub);
+            FrozenTraitStore initialTraits = new LiveTraitStore()
+            {
+                traitStub
+            }
+            .Freeze();
+
+            GameObject item = new GameObject(traits: initialTraits);
+            GameObject item2 = new GameObject(traits: initialTraits);
+            item.RemoveTrait<TraitStub>();
             Assert.IsNull(item.As<TraitStub>());
             Assert.AreEqual(item2.As<TraitStub>(), traitStub);
         }

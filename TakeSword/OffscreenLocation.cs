@@ -2,7 +2,7 @@
 
 namespace TakeSword
 {
-    class OffscreenSchedule : ISchedule
+    public class OffscreenSchedule : ISchedule
     {
         public void Add(IEvent event1, long delay)
         {
@@ -19,7 +19,7 @@ namespace TakeSword
             return true;
         }
     }
-    internal class OffscreenLocation : ILocation
+    public class OffscreenLocation : ILocation
     {
         public ISchedule Schedule => new OffscreenSchedule();
 

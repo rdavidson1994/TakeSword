@@ -21,7 +21,7 @@ namespace TakeSwordTests
 
             public long CooldownTime => 0;
 
-            public IActionOutcome Attempt()
+            public ActionOutcome Attempt()
             {
                 return new SuccessfulOutcome(this);
             }
@@ -31,9 +31,14 @@ namespace TakeSwordTests
                 return actor;
             }
 
-            public IActionOutcome IsValid()
+            public ActionOutcome IsValid()
             {
                 return new SuccessfulOutcome(this);
+            }
+
+            public IRoutine AsRoutine()
+            {
+                throw new NotImplementedException();
             }
         }
         private class FakeRoutine : IRoutine
@@ -43,9 +48,20 @@ namespace TakeSwordTests
             {
                 this.actor = actor;
             }
+
+            public IRoutine AsRoutine()
+            {
+                throw new NotImplementedException();
+            }
+
             public IActor GetActor()
             {
                 return actor;
+            }
+
+            public ActionOutcome IsValid()
+            {
+                throw new NotImplementedException();
             }
 
             public IAction NextAction()

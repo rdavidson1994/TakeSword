@@ -18,7 +18,7 @@ namespace TakeSwordTests
             GameObject place = new GameObject();
             GameObject prop = new GameObject(place);
             PhysicalActor actor = new PhysicalActor(place);
-            IActionOutcome outcome = new Take(actor, prop).Attempt();
+            ActionOutcome outcome = new Take(actor, prop).Attempt();
             Assert.IsTrue(outcome.Success());
             Assert.AreEqual(actor, prop.Location);
         }
@@ -29,7 +29,7 @@ namespace TakeSwordTests
             GameObject place = new GameObject();
             PhysicalActor actor = new PhysicalActor(place);
             GameObject prop = new GameObject(actor);
-            IActionOutcome outcome = new Drop(actor, prop).Attempt();
+            ActionOutcome outcome = new Drop(actor, prop).Attempt();
             Assert.IsTrue(outcome.Success());
             Assert.AreEqual(place, prop.Location);
         }

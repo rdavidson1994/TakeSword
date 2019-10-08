@@ -10,12 +10,10 @@ namespace TakeSword
 
     public class PhysicalActor : GameObject, IPhysicalActor
     {
-        public PhysicalActor(ILocation location) : base(location) { }
-
-        public PhysicalActor() : base() { }
+        public PhysicalActor(ILocation location = null, FrozenTraitStore traits = null) : base(location, traits) { }
 
         protected IEvent ScheduledEvent { get; set; }
-        public IRoutine AI { get; protected set; }
+        public IRoutine AI { get; set; }
 
         public void Act()
         {

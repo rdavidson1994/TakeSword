@@ -6,6 +6,7 @@ namespace TakeSword
 {
     public enum Direction
     {
+        None = 0,
         North = 1,
         South = -1,
         East = 2,
