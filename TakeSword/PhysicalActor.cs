@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TakeSword
 {
@@ -41,11 +43,45 @@ namespace TakeSword
             ScheduledEvent = cooldownEvent;
             Schedule.Add(cooldownEvent, action.CooldownTime);
         }
-
+        public int SightRange { get; set; } = 100000;
         public int Reach { get; set; } = 2000;
+
+        public IEnumerable<GameObject> TargetsByName(string name)
+        {
+            return Enumerable.Concat(
+                contents,
+                Location.NearbyObjects(SightRange)).Where((obj)=>obj.HasName(this, name)
+            );
+        }
+
+        public GameObject ObjectByName(string name)
+        {
+            var candidates = Enumerable.Concat(contents, Location.NearbyObjects(SightRange));
+            foreach (GameObject thing in candidates)
+            {
+                if (thing.Name.Matches(this, name))
+                {
+                    return thing;
+                }
+            }
+            return null;
+        }
+
         public bool CanReach(IGameObject gameObject)
         {
-            return Location.NearbyObjects(Reach).Contains(gameObject);
+            return Location.NearbyObjects(Reach).Contains(gameObject) || HasItem(gameObject);
+        }
+
+        public ActionOutcome Take(GameObject target)
+        {
+            target.Move(this);
+            return new SuccessfulOutcome();
+        }
+
+        protected override void ReactToAnnouncement(object announcement)
+        {
+            AI.ReactToAnnouncement(announcement);
+            base.ReactToAnnouncement(announcement);
         }
     }
     

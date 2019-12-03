@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using Moq;
 using System.Collections.Generic;
 using System.Text;
 using TakeSword;
@@ -9,16 +10,13 @@ namespace TakeSwordTests
     [TestFixture]
     public class ActionTests
     {
-        // The actual action code can make arbitrary changes to the game state;
-        // Since they have no business logic, no unit tests are appropriate.
-        // Instead we use integration tests.
         [Test]
         public void TakeTest()
         {
             GameObject place = new GameObject();
             GameObject prop = new GameObject(place);
             PhysicalActor actor = new PhysicalActor(place);
-            ActionOutcome outcome = new Take(actor, prop).Attempt();
+            ActionOutcome outcome = new Take { Actor = actor, Target = prop }.Attempt();
             Assert.IsTrue(outcome.Success());
             Assert.AreEqual(actor, prop.Location);
         }
@@ -29,7 +27,7 @@ namespace TakeSwordTests
             GameObject place = new GameObject();
             PhysicalActor actor = new PhysicalActor(place);
             GameObject prop = new GameObject(actor);
-            ActionOutcome outcome = new Drop(actor, prop).Attempt();
+            ActionOutcome outcome = new Drop { Actor = actor, Target = prop }.Attempt();
             Assert.IsTrue(outcome.Success());
             Assert.AreEqual(place, prop.Location);
         }

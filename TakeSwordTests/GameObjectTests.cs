@@ -25,7 +25,9 @@ namespace TakeSwordTests
         }
     }
 
-    class TraitStub : Trait { }
+    class TraitStub : Trait {
+        public int traitProperty = 0;
+    }
     class LocationSpy : ILocation
     {
         public bool wasEntered;
@@ -93,10 +95,12 @@ namespace TakeSwordTests
         [Test]
         public void RemoveTrait()
         {
-            TraitStub traitStub = new TraitStub();
             FrozenTraitStore initialTraits = new LiveTraitStore()
             {
-                traitStub
+                new TraitStub
+                {
+                    traitProperty = 10
+                }
             }
             .Freeze();
 
@@ -104,13 +108,12 @@ namespace TakeSwordTests
             GameObject item2 = new GameObject(traits: initialTraits);
             item.RemoveTrait<TraitStub>();
             Assert.IsNull(item.As<TraitStub>());
-            Assert.AreEqual(item2.As<TraitStub>(), traitStub);
+            Assert.AreEqual(10, item2.As<TraitStub>().traitProperty);
         }
 
         [Test]
         public void ObjectAsLocation()
         {
-            ISchedule schedule = new ScheduleStub();
             GameObject gameObject = new GameObject();
             GameObject inner = new GameObject(gameObject);
             Assert.IsTrue(gameObject.Contents.Contains(inner));

@@ -26,5 +26,7 @@
                 return action;
             }
         }
+
+        public void ReactToAnnouncement(object announcement) { }
     }
 }

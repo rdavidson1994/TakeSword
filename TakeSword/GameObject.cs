@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace TakeSword
@@ -13,7 +12,6 @@ namespace TakeSword
         public virtual IReadOnlyCollection<Trait> InitialTraits { get; set; } = new HashSet<Trait>();
         protected IWritableTraitStore Traits;
         public ISchedule Schedule { get; protected set; }
-        private HashSet<Trait> instanceTraits;
 
         public GameObject(ILocation location=null, FrozenTraitStore traits=null)
         {
@@ -28,21 +26,52 @@ namespace TakeSword
             contents = new HashSet<GameObject>();
         }
 
+        public GameObject(ISchedule schedule, FrozenTraitStore traits = null)
+        {
+            if (traits == null)
+                traits = FrozenTraitStore.Empty();
+            Traits = new MirrorTraitStore(traits);
+            Location = new OffscreenLocation();
+            Schedule = schedule;
+            contents = new HashSet<GameObject>();
+        }
+
         public TraitType As<TraitType>() where TraitType: Trait
         {
             return Traits.Get<TraitType>();
+        }
+
+        public string DisplayName(IGameObject viewer)
+        {
+            if (viewer == this)
+            {
+                return "you";
+            }
+            if (Name != null)
+            {
+                return Name.DisplayName(viewer);
+            }
+            else
+            {
+                return "an unnamed object";
+            }
         }
 
         public string GetName(IGameObject viewer)
         {
             if (Name != null)
             {
-                return Name.GetText(viewer);
+                return Name.GetName(viewer);
             }
             else
             {
                 return "unnamed";
             }
+        }
+
+        public virtual ActionOutcome Allows(PhysicalAction action, TargetType stakeholderType)
+        {
+            return new SuccessfulOutcome();
         }
 
         public bool AddTrait<T>(T trait) where T : Trait
@@ -59,14 +88,6 @@ namespace TakeSword
             Location.BeEntered(this);
         }
 
-        //public bool RemoveTrait(Trait trait)
-        //{
-        //    if (instanceTraits == null)
-        //    {
-        //        instanceTraits = new HashSet<Trait>(InitialTraits);
-        //    }
-        //    return instanceTraits.Remove(trait);
-        //}
 
         public bool BeEntered(GameObject gameObject)
         {
@@ -86,6 +107,20 @@ namespace TakeSword
             {
                 gameObject.HandleAnnouncement(announcement);
             }
+        }
+
+        public virtual bool HasName(IGameObject viewer, string name)
+        {
+            if (Name == null)
+            {
+                return false;
+            }
+            return Name.Matches(viewer, name);
+        }
+
+        public virtual void ReactTo(IAction action, ActionOutcome outcome, TargetType targetType)
+        {
+
         }
 
         protected virtual void ReactToAnnouncement(object announcement)

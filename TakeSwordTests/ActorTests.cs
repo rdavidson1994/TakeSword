@@ -23,7 +23,8 @@ namespace TakeSwordTests
 
             public ActionOutcome Attempt()
             {
-                return new SuccessfulOutcome(this);
+                wasAttempted = true;
+                return new SuccessfulOutcome();
             }
 
             public IActor GetActor()
@@ -33,7 +34,7 @@ namespace TakeSwordTests
 
             public ActionOutcome IsValid()
             {
-                return new SuccessfulOutcome(this);
+                return new SuccessfulOutcome();
             }
 
             public IRoutine AsRoutine()
@@ -67,6 +68,11 @@ namespace TakeSwordTests
             public IAction NextAction()
             {
                 return new FakeAction(actor);
+            }
+
+            public void ReactToAnnouncement(object announcement)
+            {
+                throw new NotImplementedException();
             }
         }
     }

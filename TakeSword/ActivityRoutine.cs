@@ -1,19 +1,13 @@
-﻿namespace TakeSword
+﻿using System.Linq;
+
+namespace TakeSword
 {
     public abstract class ActivityRoutine : IRoutine
     {
 
-        public IActor Actor { get; protected set; }
         private IRoutine Routine { get; set; }
         protected IAction StoredAction { get; private set; }
-        public ActivityRoutine(IActor actor)
-        {
-            Actor = actor;
-        }
-        public IActor GetActor()
-        {
-            return Actor;
-        }
+        public abstract IActor GetActor();
 
         public abstract IActivity NextActivity();
 
@@ -38,18 +32,14 @@
             }
 
             IActivity activity = NextActivity();
-            if (activity is IRoutine routine)
+            if (activity is IAction atomicAction)
             {
-                Routine = routine;
-                return NextAction();
-            }
-            else if (activity is IAction action)
-            {
-                return action;
+                return atomicAction;
             }
             else
             {
-                throw new System.Exception("Unsupported activity type");
+                Routine = activity.AsRoutine();
+                return NextAction();
             }
         }
 
@@ -60,12 +50,50 @@
                 StoredAction = NextAction();
             }
             return StoredAction.IsValid();
-
         }
 
         public IRoutine AsRoutine()
         {
             return this;
+        }
+
+        public virtual void ReactToAnnouncement(object announcement)
+        {
+            if (Routine != null)
+            {
+                Routine.ReactToAnnouncement(announcement);
+            }
+        }
+    }
+
+    public class WrapperRoutine : ActivityRoutine
+    {
+        private bool done;
+        private IActor actor;
+        private IActivity wrappedActivity;
+
+        public WrapperRoutine(IActivity wrappedActivity)
+        {
+            actor = wrappedActivity.GetActor();
+            done = false;
+            this.wrappedActivity = wrappedActivity;
+        }
+        public override IActor GetActor()
+        {
+            return actor;
+        }
+
+        public override IActivity NextActivity()
+        {
+            if (done)
+            {
+                return null;
+            }
+            else
+            {
+                done = true;
+                return wrappedActivity;
+            }
         }
     }
 }

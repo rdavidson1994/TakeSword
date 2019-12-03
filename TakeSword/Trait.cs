@@ -2,20 +2,6 @@
 
 namespace TakeSword
 {
-    public static class TraitConverter
-    {
-        public static Type DirectTraitType<T>() where T : Trait
-        {
-            Type prevType = typeof(T);
-            Type nextType = prevType;
-            while (nextType != typeof(Trait))
-            {
-                prevType = nextType;
-                nextType = prevType.BaseType;
-            }
-            return prevType;
-        }
-    }
     public class Trait
     {
         public static Type DirectSubtype<T>() where T : Trait

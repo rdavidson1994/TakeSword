@@ -20,7 +20,7 @@ namespace TakeSword
         public static PhysicalActor MakeBandit()
         {
             PhysicalActor bandit = new PhysicalActor(traits: banditTraits);
-            GameObject sword = new GameObject(traits: swordTraits, location: bandit);
+            new GameObject(traits: swordTraits, location: bandit);
             return bandit;
         }
     }
@@ -42,11 +42,24 @@ namespace TakeSword
         static void Main(string[] args)
         {
             Schedule schedule = new Schedule();
-            schedule.Add(new MessageEvent("world"), 200);
-            schedule.Add(new MessageEvent("!"), 300);
-            schedule.Add(new MessageEvent("hello"), 100);
-            schedule.RunOnce();
-            schedule.RunOnce();
+            GameObject place = new GameObject(schedule);
+            GameObject sword = new GameObject(place);
+            GameObject sword2 = new GameObject(place);
+            GameObject apple = new GameObject(place);
+            apple.Name = new SimpleName("apple");
+            sword.Name = new SimpleName("sword");
+            sword2.Name = new SimpleName("sword");
+            PhysicalActor player = new PhysicalActor(place);
+            IUserInterface userInterface = new ConsoleUserInterface(new ConsoleOutputFormatter());
+            PlayerCharacterAI playerAI = new PlayerCharacterAI(player, userInterface);
+            playerAI.AddVerbs(
+                new TargetVerb<Take>("take", "get", "pick up"),
+                new TargetVerb<Drop>("put down", "drop"),
+                new ToolVerb<WeaponStrike>("hit", "attack", "strike")
+            );
+            player.AI = playerAI;
+            player.Act();
+            schedule.RunFor(1000000);
         }
     }
 }

@@ -7,16 +7,32 @@ namespace TakeSword
     public interface IName
     {
         bool Matches(IGameObject viewer, string text);
-        string GetText(IGameObject viewer);
+        string GetName(IGameObject viewer);
+        string DisplayName(IGameObject viewer);
     }
     public class SimpleName : IName
     {
+        private bool isProper;
         private string name;
-        public SimpleName(string name)
+        public SimpleName(string name, bool isProper=false)
         {
             this.name = name;
+            this.isProper = isProper;
         }
-        public string GetText(IGameObject viewer)
+
+        public string DisplayName(IGameObject viewer)
+        {
+            if (isProper)
+            {
+                return name;
+            }
+            else
+            {
+                return "the " + name;
+            }
+        }
+
+        public string GetName(IGameObject viewer)
         {
             return name;
         }

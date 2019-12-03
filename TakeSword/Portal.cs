@@ -5,7 +5,7 @@ namespace TakeSword
     public class Portal : GameObject
     {
         public Direction Direction { get; protected set; }
-        public Portal Opposite { get; protected set; }
+        protected Portal Opposite { get; set; }
 
         public Portal(
             Direction direction,
@@ -13,15 +13,14 @@ namespace TakeSword
             FrozenTraitStore traits = null
         ) : base(location, traits)
         {
-            Direction = Direction;
+            Direction = direction;
         }
-
 
         public Portal(
             Portal opposite,
             ILocation location=null,
             FrozenTraitStore traits=null,
-            Direction? direction = null
+            Direction? direction=null
         ) : base (location, traits)
         {
             Opposite = opposite;
@@ -32,7 +31,7 @@ namespace TakeSword
             }
             else
             {
-                Direction = DirectionConverter.Opposite(Opposite.Direction);
+                Direction = Opposite.Direction.Opposite();
             }
         }
     }
