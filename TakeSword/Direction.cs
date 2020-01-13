@@ -47,7 +47,7 @@ namespace TakeSword
             {
                 key = str;
             }
-            if (letterToDirection.TryGetValue(str, out Direction direction))
+            if (letterToDirection.TryGetValue(key, out Direction direction))
             {
                 return direction;
             }

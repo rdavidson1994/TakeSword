@@ -80,7 +80,10 @@ namespace TakeSword
 
         protected override void ReactToAnnouncement(object announcement)
         {
-            AI.ReactToAnnouncement(announcement);
+            if (AI != null)
+            {
+                AI.ReactToAnnouncement(announcement);
+            }
             base.ReactToAnnouncement(announcement);
         }
     }

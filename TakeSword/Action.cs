@@ -59,7 +59,7 @@ namespace TakeSword
         }
     }
 
-    public abstract class PhysicalAction : IAction
+    public abstract class PhysicalAction : IAction, IPhysicalActivity
     {
         protected abstract string Name();
         protected virtual string RelativeName(IGameObject viewer)
@@ -157,7 +157,7 @@ namespace TakeSword
 
     }
 
-    public abstract class TargetedAction : PhysicalAction
+    public abstract class TargetedAction : PhysicalAction, ITargetedActivity
     {
         public override FormattableString AnnouncementText(IGameObject viewer)
         {
@@ -176,7 +176,7 @@ namespace TakeSword
         }
     }
 
-    public abstract class ToolAction : TargetedAction
+    public abstract class ToolAction : TargetedAction, IToolActivity
     {
         public GameObject Tool { get; set; }
         public override FormattableString AnnouncementText(IGameObject viewer)
@@ -189,7 +189,7 @@ namespace TakeSword
             yield return (TargetType.Target, Target);
             yield return (TargetType.Tool, Tool);
         }
-        
+
         protected ActionOutcome HasTool()
         {
             if (!Actor.HasItem(Tool))
@@ -253,6 +253,21 @@ namespace TakeSword
         {
             return Succeed();
         }
+    }
+
+    public class WaitAction : PhysicalAction
+    {
+        public override ActionOutcome IsValid()
+        {
+            return Succeed();
+        }
+
+        protected override ActionOutcome Execute()
+        {
+            return Succeed();
+        }
+
+        protected override string Name() => "wait";
     }
 
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace TakeSword
 {
@@ -12,7 +13,8 @@ namespace TakeSword
                 .CreateParser(pattern);
         }
 
-        public IActivity BuildActivity(IVerbalAI ai, string input)
+
+        public IActivity Interpret(IVerbalAI ai, string input)
         {
             var lookupTable = Parser.Match(input);
             if (lookupTable == null)
@@ -25,7 +27,7 @@ namespace TakeSword
         protected abstract IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup);
     }
 
-    public class SimpleVerb<ActionType> : Verb where ActionType : PhysicalAction, new()
+    public class SimpleVerb<ActionType> : Verb where ActionType : IPhysicalActivity, new()
     {
         public SimpleVerb(params string[] synonyms) : base("VERB", synonyms)
         {
@@ -37,62 +39,104 @@ namespace TakeSword
         }
     }
 
-    public class TargetVerb<ActionType> : Verb where ActionType: TargetedAction, new()
+    public class TargetVerb<ActionType> : Verb where ActionType: ITargetedActivity, new()
     {
         public TargetVerb(params string[] synonyms) : base("VERB TARGET", synonyms) { }
 
         protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
         {
-            var manager = new RequirementManager(lookup, ai);
-            var target = manager.Require<GameObject>("TARGET");
-            if (manager.Fulfill())
+            IEnumerable<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]);
+            List<ActionType> activities = null;
+            List<ActionType> validActivities = null;
+            while (validActivities == null || validActivities.Count > 1)
             {
-                return new ActionType
+                IEnumerable<ActionType> query =
+                    from target in targets
+                    select new ActionType
+                    {
+                        Actor = ai.GetActor(),
+                        Target = target,
+                    };
+                activities = new List<ActionType>(query);
+                validActivities = activities.Where(x => x.IsValid()).ToList();
+                IEnumerable<GameObject> validTargets = from act in validActivities select act.Target;
+                var uniqueTargets = new HashSet<GameObject>(validTargets);
+                if (uniqueTargets.Count > 1)
                 {
-                    Actor = ai.GetActor(),
-                    Target = target.Value,
-                };
+                    GameObject definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
+                    targets = new List<GameObject>() { definiteTarget };
+                }
             }
-            return manager.AutoFail();
+            if (activities.Count == 0)
+            {
+                return null;
+            }
+            else if (validActivities.Count == 0)
+            {
+                return activities[0];
+            }
+            else
+            {
+                return validActivities[0];
+            }
         }
+
+
     }
 
-    public class ToolVerb<ActionType> : Verb where ActionType: ToolAction, new()
+    public class ToolVerb<ActionType> : Verb where ActionType: IToolActivity, new()
     {
         public ToolVerb(params string[] synonyms) : base("VERB TARGET with TOOL", synonyms) { }
 
         protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
         {
-            var manager = new RequirementManager(lookup, ai);
-            var target = manager.Require<GameObject>("TARGET");
-            var tool = manager.Require<GameObject>("TOOL");
-            if (manager.Fulfill())
+            IEnumerable<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]);
+            IEnumerable<GameObject> tools = ai.ObjectsWithName(lookup["TOOL"]);
+            List<ActionType> activities = null;
+            List<ActionType> validActivities = null;
+            while (validActivities == null || validActivities.Count > 1)
             {
-                return new ActionType
+                IEnumerable<ActionType> query =
+                    from target in targets
+                    from tool in tools
+                    select new ActionType
+                    {
+                        Actor = ai.GetActor(),
+                        Target = target,
+                        Tool = tool,
+                    };
+                activities = new List<ActionType>(query);
+                validActivities = activities.Where(x => x.IsValid()).ToList();
+                IEnumerable<GameObject> validTargets = from act in validActivities select act.Target;
+                var uniqueTargets = new HashSet<GameObject>(validTargets);
+                if (uniqueTargets.Count > 1)
                 {
-                    Actor = ai.GetActor(),
-                    Target = target.Value,
-                    Tool = tool.Value,
-                };
+                    GameObject definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
+                    targets = new List<GameObject>() { definiteTarget };
+                }
+                else
+                {
+                    IEnumerable<GameObject> validTools = from act in validActivities select act.Tool;
+                    var uniqueTools = new HashSet<GameObject>(validTargets);
+                    if (uniqueTools.Count > 1)
+                    {
+                        GameObject definiteTool = ai.ChooseObject(lookup["TOOL"], uniqueTools);
+                        tools = new List<GameObject>() { definiteTool };
+                    }
+                }
             }
-            return manager.AutoFail();
-        }
-    }
-
-
-    public static class Test
-    {
-        public static void DoTest()
-        {
-            PhysicalActor player = new PhysicalActor();
-            PlayerCharacterAI playerAI = new PlayerCharacterAI(player, new ConsoleUserInterface(new ConsoleOutputFormatter()));
-            playerAI.AddVerbs(new Verb[]
+            if (activities.Count == 0)
             {
-                new TargetVerb<Take>("take", "get", "pick up"),
-                new TargetVerb<Drop>("put down", "drop"),
-                new ToolVerb<WeaponStrike>("hit", "attack", "strike"),
-            });
-            player.AI = playerAI;
+                return null;
+            }
+            else if (validActivities.Count == 0)
+            {
+                return activities[0];
+            }
+            else
+            {
+                return validActivities[0];
+            }
         }
     }
 }

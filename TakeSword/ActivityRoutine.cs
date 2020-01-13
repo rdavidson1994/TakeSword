@@ -4,7 +4,6 @@ namespace TakeSword
 {
     public abstract class ActivityRoutine : IRoutine
     {
-
         private IRoutine Routine { get; set; }
         protected IAction StoredAction { get; private set; }
         public abstract IActor GetActor();

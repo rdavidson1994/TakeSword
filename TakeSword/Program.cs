@@ -55,7 +55,8 @@ namespace TakeSword
             playerAI.AddVerbs(
                 new TargetVerb<Take>("take", "get", "pick up"),
                 new TargetVerb<Drop>("put down", "drop"),
-                new ToolVerb<WeaponStrike>("hit", "attack", "strike")
+                new ToolVerb<WeaponStrike>("hit", "attack", "strike"),
+                new SimpleVerb<WaitAction>("wait","delay")
             );
             player.AI = playerAI;
             player.Act();

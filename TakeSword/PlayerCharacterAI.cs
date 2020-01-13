@@ -78,7 +78,6 @@ namespace TakeSword
             while (true)
             {
                 //userInterface.PrintOutput("Seeking action.");
-                bool failedWithReason = false;
                 string input;
                 if (storedInput != null)
                 {
@@ -89,17 +88,19 @@ namespace TakeSword
                 {
                     input = userInterface.GetInput();
                 }
+
+                FailedOutcome backupOutcome = null;
                 foreach (Verb verb in verbs)
                 {
-                    IActivity activity = verb.BuildActivity(this, input);
+                    var activity = verb.Interpret(this, input);
                     if (activity != null)
                     {
-                        //userInterface.PrintOutput("Got an action.");
                         if (activity.IsValid() is FailedOutcome failure)
                         {
-                            userInterface.PrintOutput(failure.Reason);
-                            failedWithReason = true;
-                            break;
+                            if (backupOutcome == null)
+                            {
+                                backupOutcome = failure;
+                            }
                         }
                         else
                         {
@@ -107,76 +108,56 @@ namespace TakeSword
                         }
                     }
                 }
-                if (storedInput == null && !failedWithReason)
+                if (storedInput != null)
                 {
-                    userInterface.PrintOutput($"I don't understand that.");
+                    continue;
                 }
+                if (backupOutcome != null)
+                {
+                    userInterface.PrintOutput(backupOutcome.Reason);
+                    continue;
+                }
+                userInterface.PrintOutput($"I don't understand the verb of that sentence.");
             }
         }
 
-        public void GetPossibilities(Hypothetical hypothetical)
+        public GameObject ChooseObject(string name, IEnumerable<GameObject> objects)
         {
-            if (hypothetical is Hypothetical<GameObject> hGameObject)
+            var candidates = objects.ToList();
+            while (candidates.Count > 1)
             {
-                hGameObject.PossibleValues = new List<GameObject>(Actor.TargetsByName(hGameObject.Name));
-            }
-            else if (hypothetical is Hypothetical<Direction> hDirection)
-            {
-
-                Direction direction = DirectionConverter.FromString(hDirection.Name);
-                if (direction != Direction.None)
+                userInterface.PrintOutput($"There are things called '{name}'. Which did you mean?");
+                char letter = 'a';
+                foreach (GameObject candidate in candidates)
                 {
-                    hDirection.PossibleValues = new List<Direction> { direction };
+                    Console.WriteLine($"{letter}.) {candidate.GetName(Actor)}");
+                    letter++;
                 }
-            }
-        }
-
-        public void ChooseValue(Hypothetical hypothetical)
-        {
-            if (hypothetical is Hypothetical<GameObject> hypotheticalObject)
-            {
-                List<GameObject> candidates = new List<GameObject>(hypotheticalObject.PossibleValues);
-                string input = hypotheticalObject.Name;
-                while (candidates.Count > 1)
+                //letter now holds the highest valid response
+                name = userInterface.GetInput();
+                if (name.Length == 1)
                 {
-                    userInterface.PrintOutput($"There are multiple matches for {input}. Which did you mean?");
-                    char letter = 'a';
-                    foreach (GameObject candidate in candidates)
+                    char letterChoice = char.ToUpper(name[0]);
+                    if ('A' <= letterChoice && letterChoice < letter)
                     {
-                        Console.WriteLine($"{letter}.) {candidate.GetName(Actor)}");
-                        letter++;
+                        int index = letterChoice - 'A';
+                        return candidates[index];
                     }
-                    //letter now holds the highest valid response
-                    input = userInterface.GetInput();
-                    if (input.Length == 1)
-                    {
-                        char letterChoice = char.ToUpper(input[0]);
-                        if ('A' <= letterChoice && letterChoice < letter)
-                        {
-                            int index = letterChoice - 'A';
-                            hypotheticalObject.Value = candidates[index];
-                            return;
-                        }
-                    }
-                    candidates = candidates.Where(x => x.HasName(Actor, input)).ToList();
                 }
-                if (candidates.Count == 0)
-                {
-                    //If the players response doesn't match any option,
-                    //It may be an unrelated command - save it for later evaluation
-                    storedInput = input;
-                    //Don't set hypotheticalObject.Value, since we could not determine it
-                }
-                else
-                {
-                    hypotheticalObject.Value = candidates.FirstOrDefault();
-                }
+                candidates = candidates.Where(x => x.HasName(Actor, name)).ToList();
             }
+            if (candidates.Count == 0)
+            {
+                //If the players response doesn't match any option,
+                //It may be an unrelated command - save it for later evaluation
+                storedInput = name;
+                return null;
+            }
+            return candidates[0];
         }
 
-        public override IActor GetActor()
-        {
-            return Actor;
-        }
+        public override IActor GetActor() => Actor;
+
+        public IEnumerable<GameObject> ObjectsWithName(string name) => Actor.TargetsByName(name);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace TakeSword
+﻿using System.Collections.Generic;
+
+namespace TakeSword
 {
     public interface IVerbalAI : IRoutine
     {
@@ -6,7 +8,7 @@
         new PhysicalActor GetActor();
         //IRoutine already provites a GetActor, but it only gaurantees an IActor
         //We hide the original to provide a more specific return type.
-        void ChooseValue(Hypothetical hypothetical);
-        void GetPossibilities(Hypothetical hypothetical);
+        IEnumerable<GameObject> ObjectsWithName(string name);
+        GameObject ChooseObject(string input, IEnumerable<GameObject> objects);
     }
 }
