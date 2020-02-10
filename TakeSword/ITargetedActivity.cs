@@ -4,4 +4,9 @@
     {
         GameObject Target { get; set; }
     }
+
+    public interface IDirectionActivity : IPhysicalActivity
+    {
+        Direction Direction { get; set; }
+    }
 }

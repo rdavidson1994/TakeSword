@@ -14,13 +14,22 @@ namespace TakeSword
     public interface IWritableTraitStore : ITraitStore
     {
         void Add<T>(T newTrait) where T : Trait;
-        bool RemoveTrait<T>() where T : Trait;
+        bool Remove<T>() where T : Trait;
     }
     public class FrozenTraitStore : ITraitStore
     {
+        static FrozenTraitStore Create(params Trait[] traits)
+        {
+            var traitStore = new TraitStore();
+            foreach (var trait in traits)
+            {
+                traitStore.Add(trait);
+            }
+            return traitStore.Freeze();
+        }
         static FrozenTraitStore empty;
-        private LiveTraitStore innerStore;
-        private FrozenTraitStore(LiveTraitStore traitStore, bool createCopy)
+        private TraitStore innerStore;
+        private FrozenTraitStore(TraitStore traitStore, bool createCopy)
         {
             if (createCopy)
             {
@@ -29,9 +38,9 @@ namespace TakeSword
             innerStore = traitStore;
         }
 
-        public FrozenTraitStore(LiveTraitStore traitStore) : this(traitStore, true) { }
+        public FrozenTraitStore(TraitStore traitStore) : this(traitStore, true) { }
 
-        public LiveTraitStore LiveCopy()
+        public TraitStore LiveCopy()
         {
             return innerStore.Copy();
         }
@@ -50,23 +59,23 @@ namespace TakeSword
         {
             if (empty == null)
             {
-                empty = new FrozenTraitStore(new LiveTraitStore(), false);
+                empty = new FrozenTraitStore(new TraitStore(), false);
             }
             return empty;
         }
     }
-    public class LiveTraitStore : IWritableTraitStore, IEnumerable<Trait>
+    public class TraitStore : IWritableTraitStore, IEnumerable<Trait>
     {
         private Dictionary<Type, Trait> data;
         private List<Type> iterationOrder;
-        public LiveTraitStore()
+        public TraitStore()
         {
             data = new Dictionary<Type, Trait>();
             iterationOrder = new List<Type>();
         }
-        public LiveTraitStore Copy()
+        public TraitStore Copy()
         {
-            LiveTraitStore copy = new LiveTraitStore();
+            TraitStore copy = new TraitStore();
             foreach (Type type in iterationOrder)
             {
                 copy.data.Add(type, data[type].Copy());
@@ -90,12 +99,16 @@ namespace TakeSword
 
         public void Add<T>(T newTrait) where T : Trait
         {
+            if (typeof(T) == typeof(Trait))
+            {
+                throw new NotSupportedException();
+            }
             Type directSubtypeOfTrait = Trait.DirectSubtype<T>();
             iterationOrder.Add(directSubtypeOfTrait);
-            data.Add(directSubtypeOfTrait, newTrait);
+            data[directSubtypeOfTrait] = newTrait;
         }
 
-        public bool RemoveTrait<T>() where T : Trait
+        public bool Remove<T>() where T : Trait
         {
             Type directSubtypeOfTrait = Trait.DirectSubtype<T>();
             bool removed = data.Remove(directSubtypeOfTrait);
@@ -135,7 +148,7 @@ namespace TakeSword
     public class MirrorTraitStore : IWritableTraitStore
     {
         private FrozenTraitStore baseStore;
-        private LiveTraitStore liveStore;
+        private TraitStore liveStore;
         private ITraitStore activeStore;
         public MirrorTraitStore(FrozenTraitStore basis)
         {
@@ -167,10 +180,10 @@ namespace TakeSword
             return activeStore.Get<T>();
         }
 
-        public bool RemoveTrait<T>() where T : Trait
+        public bool Remove<T>() where T : Trait
         {
             CreateLiveStoreIfNeeded();
-            return liveStore.RemoveTrait<T>();
+            return liveStore.Remove<T>();
         }
     }
 }

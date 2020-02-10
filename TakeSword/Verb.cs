@@ -45,7 +45,14 @@ namespace TakeSword
 
         protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
         {
-            IEnumerable<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]);
+            List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
+            if (targets.Count == 0)
+            {
+                return new AutoFailAction(
+                    ai.GetActor(),
+                    new FailedOutcome($"There is no {lookup["TARGET"]} here")
+                );
+            }
             List<ActionType> activities = null;
             List<ActionType> validActivities = null;
             while (validActivities == null || validActivities.Count > 1)
@@ -90,8 +97,19 @@ namespace TakeSword
 
         protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
         {
-            IEnumerable<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]);
-            IEnumerable<GameObject> tools = ai.ObjectsWithName(lookup["TOOL"]);
+            List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
+            if (targets.Count == 0)
+                return new AutoFailAction(
+                    ai.GetActor(),
+                    new FailedOutcome($"There is no {lookup["TARGET"]} here.")
+                );
+
+            List<GameObject> tools = ai.ObjectsWithName(lookup["TOOL"]).ToList();
+            if (tools.Count == 0)
+                return new AutoFailAction(
+                    ai.GetActor(),
+                    new FailedOutcome($"There is no {lookup["TOOL"]} here.")
+                );
             List<ActionType> activities = null;
             List<ActionType> validActivities = null;
             while (validActivities == null || validActivities.Count > 1)
@@ -137,6 +155,31 @@ namespace TakeSword
             {
                 return validActivities[0];
             }
+        }
+    }
+
+    public class DirectionVerb<ActionType> : Verb where ActionType : IDirectionActivity, new()
+    {
+        //public static DirectionVerb<ActionType> DirectionWithImplicitVerb()
+        public DirectionVerb() : base("DIRECTION") { }
+        public DirectionVerb(params string[] synonyms) : base("VERB DIRECTION", synonyms) { }
+
+        protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
+        {
+            var direction = DirectionConverter.FromString(lookup["DIRECTION"]);
+            if (direction == Direction.None)
+            {
+                return null;
+                //return new AutoFailAction(
+                //    ai.GetActor(),
+                //    new FailedOutcome($"{lookup["DIRECTION"]} is not a valid direction")
+                //);
+            }
+            return new ActionType()
+            {
+                Actor = ai.GetActor(),
+                Direction = direction
+            };
         }
     }
 }

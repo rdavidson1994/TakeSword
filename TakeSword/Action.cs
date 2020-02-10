@@ -7,70 +7,20 @@ namespace TakeSword
     {
         Actor, Target, Tool, Bystander
     }
-    public abstract class ActionOutcome
-    {
-        public abstract bool Success();
-        public static implicit operator bool(ActionOutcome outcome)
-        {
-            return outcome.Success();
-        }
-        public static bool operator false(ActionOutcome actionOutcome)
-        {
-            return !actionOutcome;
-        }
-        public static bool operator true(ActionOutcome actionOutcome)
-        {
-            return actionOutcome;
-        }
-        public static ActionOutcome operator |(ActionOutcome first, ActionOutcome second)
-        {
-            if (first.Success())
-                return first;
-            return second;
-        }
-
-        public static ActionOutcome operator &(ActionOutcome first, ActionOutcome second)
-        {
-            if (!first.Success())
-                return first;
-            return second;
-        }
-    }
-
-    public class SuccessfulOutcome : ActionOutcome
-    {
-        public override bool Success()
-        {
-            return true;
-        }
-    }
-
-    public class FailedOutcome : ActionOutcome
-    {
-        public override bool Success()
-        {
-            return false;
-        }
-
-        public FormattableString Reason { get; protected set; }
-        public FailedOutcome(FormattableString reason)
-        {
-            Reason = reason;
-        }
-    }
 
     public abstract class PhysicalAction : IAction, IPhysicalActivity
     {
-        protected abstract string Name();
+        protected abstract string Name { get; }
+
         protected virtual string RelativeName(IGameObject viewer)
         {
             if (Actor == viewer)
             {
-                return Name();
+                return Name;
             }
             else
             {
-                return Name() + "s";
+                return Name + "s";
             }
         }
         public virtual FormattableString AnnouncementText(IGameObject viewer)
@@ -136,7 +86,7 @@ namespace TakeSword
 
             foreach (var (type, stakeholder) in Stakeholders())
             {
-                outcome = stakeholder.Allows((dynamic)this, type);
+                outcome = stakeholder.Allows(new ActionAnnouncement(this, null, type));
                 if (!outcome)
                 {
                     Announce(outcome);
@@ -210,6 +160,8 @@ namespace TakeSword
         }
         public override ActionOutcome IsValid()
         {
+            if (!Target.Is<ItemTrait>())
+                return Fail($"You can only take reasonably sized inanimate objects.");
             return DoesNotHave(Target) && CanReach(Target);
         }
 
@@ -219,12 +171,12 @@ namespace TakeSword
             return Succeed();
         }
 
-        protected override string Name() => "take";
+        protected override string Name => "take";
     }
 
     public class Drop : TargetedAction
     {
-        protected override string Name() => "drop";
+        protected override string Name => "drop";
         public override ActionOutcome IsValid()
         {
             if (!Actor.HasItem(Target))
@@ -243,7 +195,7 @@ namespace TakeSword
 
     public class WeaponStrike : ToolAction
     {
-        protected override string Name() => "hit";
+        protected override string Name => "hit";
         public override ActionOutcome IsValid()
         {
             return CanReach(Target) && Has(Tool);
@@ -267,10 +219,33 @@ namespace TakeSword
             return Succeed();
         }
 
-        protected override string Name() => "wait";
+        protected override string Name => "wait";
     }
 
+    public class Eat : TargetedAction
+    {
+        protected override string Name => "eat";
 
+        public override ActionOutcome IsValid()
+        {
+            if (Target.Is<Food>())
+            {
+                return Has(Target);
+            }
+            return Fail($"{Target} is not edible.");
+        }
+
+        protected override ActionOutcome Execute()
+        {
+            if (Target.Is(out Food food))
+            {
+                Target.Vanish();
+                Console.WriteLine($"Yum! +{food.Nutrition} nutrition.");
+                return Succeed();
+            }
+            return Fail($"Not edible");
+        }
+    }
 
     public class AutoFailAction : IAction
     {
@@ -306,5 +281,28 @@ namespace TakeSword
         {
             return staticFailedOutcome;
         }
+    }
+
+    public class Enter : TargetedAction
+    {
+        private Portal targetAsPortal;
+        public override ActionOutcome IsValid()
+        {
+            ActionOutcome base_ = base.IsValid();
+            if (!base_) return base_;
+            if (Target is Portal portal)
+            {
+                targetAsPortal = portal;
+                return Succeed();
+            }
+            return Fail($"{Target} is not a portal.");
+        }
+        protected override ActionOutcome Execute()
+        {
+            Actor.Move(targetAsPortal.Opposite.Location);
+            return Succeed();
+        }
+
+        protected override string Name => "enter";
     }
 }

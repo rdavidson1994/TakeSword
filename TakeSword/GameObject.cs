@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TakeSword
@@ -7,19 +8,31 @@ namespace TakeSword
     {
         protected readonly HashSet<GameObject> contents;
         public IName Name { get; set; }
+        public string StringName
+        {
+            set
+            {
+                Name = new Name(value);
+            }
+        }
         public IReadOnlyCollection<GameObject> Contents { get { return contents; } }
         public ILocation Location { get; protected set; }
-        public virtual IReadOnlyCollection<Trait> InitialTraits { get; set; } = new HashSet<Trait>();
-        protected IWritableTraitStore Traits;
+        protected IWritableTraitStore traits;
+        public ITraitStore Traits
+        {
+            set
+            {
+                traits = new MirrorTraitStore(value.Freeze());
+            }
+        }
         public ISchedule Schedule { get; protected set; }
-
         public GameObject(ILocation location=null, FrozenTraitStore traits=null)
         {
             if (location == null)
                 location = new OffscreenLocation();
             if (traits == null)
                 traits = FrozenTraitStore.Empty();
-            Traits = new MirrorTraitStore(traits);
+            this.traits = new MirrorTraitStore(traits);
             Location = location;
             Location.BeEntered(this);
             Schedule = Location.Schedule;
@@ -30,15 +43,26 @@ namespace TakeSword
         {
             if (traits == null)
                 traits = FrozenTraitStore.Empty();
-            Traits = new MirrorTraitStore(traits);
+            this.traits = new MirrorTraitStore(traits);
             Location = new OffscreenLocation();
             Schedule = schedule;
             contents = new HashSet<GameObject>();
         }
 
+        public bool Is<TraitType>(out TraitType trait) where TraitType : Trait
+        {
+            trait = this.As<TraitType>();
+            return (trait != null);
+        }
+
+        public bool Is<TraitType>() where TraitType : Trait
+        {
+            return Is(out TraitType _);
+        }
+
         public TraitType As<TraitType>() where TraitType: Trait
         {
-            return Traits.Get<TraitType>();
+            return traits.Get<TraitType>();
         }
 
         public string DisplayName(IGameObject viewer)
@@ -49,7 +73,7 @@ namespace TakeSword
             }
             if (Name != null)
             {
-                return Name.DisplayName(viewer);
+                return Name.NameWithArticle(viewer);
             }
             else
             {
@@ -69,14 +93,14 @@ namespace TakeSword
             }
         }
 
-        public virtual ActionOutcome Allows(PhysicalAction action, TargetType stakeholderType)
+        public virtual ActionOutcome Allows(ActionAnnouncement announcement)
         {
             return new SuccessfulOutcome();
         }
 
         public bool AddTrait<T>(T trait) where T : Trait
         {
-            Traits.Add(trait);
+            traits.Add(trait);
             return true;
         }
 
@@ -87,6 +111,12 @@ namespace TakeSword
             Schedule = Location.Schedule;
             Location.BeEntered(this);
         }
+
+        public void Vanish()
+        {
+            Move(new OffscreenLocation());
+        }
+
 
 
         public bool BeEntered(GameObject gameObject)
@@ -101,7 +131,7 @@ namespace TakeSword
 
         public bool BeExited(GameObject gameObject) => contents.Remove(gameObject);
 
-        protected void BroadcastAnnouncement(object announcement)
+        protected void BroadcastAnnouncement(ActionAnnouncement announcement)
         {
             foreach (GameObject gameObject in contents)
             {
@@ -118,17 +148,9 @@ namespace TakeSword
             return Name.Matches(viewer, name);
         }
 
-        public virtual void ReactTo(IAction action, ActionOutcome outcome, TargetType targetType)
-        {
+        protected virtual void ReactToAnnouncement(ActionAnnouncement announcement) { }
 
-        }
-
-        protected virtual void ReactToAnnouncement(object announcement)
-        {
-            // do nothing
-        }
-
-        public void HandleAnnouncement(object announcement)
+        public void HandleAnnouncement(ActionAnnouncement announcement)
         {
             ReactToAnnouncement(announcement);
             BroadcastAnnouncement(announcement);
@@ -141,7 +163,7 @@ namespace TakeSword
 
         public bool RemoveTrait<T>() where T : Trait
         {
-            return Traits.RemoveTrait<T>();
+            return traits.Remove<T>();
         }
     }
 }

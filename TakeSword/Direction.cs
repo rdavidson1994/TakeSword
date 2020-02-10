@@ -10,10 +10,10 @@ namespace TakeSword
         None = 0,
         North = 1,
         South = -1,
-        East = 2,
-        West = -2,
-        Up = 3,
-        Down = -3
+        East = 3,
+        West = -3,
+        Up = 9,
+        Down = -9,
     }
 
     public static class DirectionExtensions

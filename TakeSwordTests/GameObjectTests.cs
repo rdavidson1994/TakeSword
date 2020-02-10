@@ -47,7 +47,7 @@ namespace TakeSwordTests
             return true;
         }
 
-        public void HandleAnnouncement(object announcement)
+        public void HandleAnnouncement(ActionAnnouncement announcement)
         {
             throw new NotImplementedException();
         }
@@ -95,7 +95,7 @@ namespace TakeSwordTests
         [Test]
         public void RemoveTrait()
         {
-            FrozenTraitStore initialTraits = new LiveTraitStore()
+            FrozenTraitStore initialTraits = new TraitStore()
             {
                 new TraitStub
                 {

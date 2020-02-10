@@ -33,7 +33,7 @@ namespace TakeSword
             return true;
         }
 
-        public void HandleAnnouncement(object announcement)
+        public void HandleAnnouncement(ActionAnnouncement announcement)
         {
             // do nothing
         }

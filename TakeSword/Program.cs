@@ -4,11 +4,11 @@ namespace TakeSword
 {
     public static class BanditFactory
     {
-        static FrozenTraitStore banditTraits = new LiveTraitStore() {
+        static FrozenTraitStore banditTraits = new TraitStore() {
 
         }.Freeze();
 
-        static FrozenTraitStore swordTraits = new LiveTraitStore()
+        static FrozenTraitStore swordTraits = new TraitStore()
         {
             new Weapon()
             {
@@ -43,20 +43,53 @@ namespace TakeSword
         {
             Schedule schedule = new Schedule();
             GameObject place = new GameObject(schedule);
-            GameObject sword = new GameObject(place);
-            GameObject sword2 = new GameObject(place);
-            GameObject apple = new GameObject(place);
-            apple.Name = new SimpleName("apple");
-            sword.Name = new SimpleName("sword");
+            GameObject place2 = new GameObject(schedule);
+            Portal door = new Portal(Direction.North, place)
+            {
+                StringName = "northern door"
+            };
+            new Portal(door, place2)
+            {
+                StringName = "southern door"
+            };
+            GameObject sword = new GameObject(place)
+            {
+                StringName = "iron sword"
+            };
+            GameObject sword2 = new GameObject(place)
+            {
+                StringName = "bronze sword"
+            };
+            var apple = new GameObject(place)
+            {
+                StringName = "apple",
+                Traits = new TraitStore()
+                {
+                    new Food { Nutrition = 300 },
+                    new ItemTrait { Weight = 200 }
+                }
+            };
+            //apple.AddTrait(new Food { Nutrition = 300 });
+            //apple.AddTrait(new ItemTrait { Weight = 200 });
+            sword.AddTrait(new ItemTrait { Weight = 1500 });
             sword2.Name = new SimpleName("sword");
+            sword2.AddTrait(new ItemTrait { Weight = 1500 });
             PhysicalActor player = new PhysicalActor(place);
-            IUserInterface userInterface = new ConsoleUserInterface(new ConsoleOutputFormatter());
+            var formatter = new ConsoleOutputFormatter();
+            IUserInterface userInterface = new ConsoleUserInterface(formatter);
             PlayerCharacterAI playerAI = new PlayerCharacterAI(player, userInterface);
+            formatter.VerbalAI = playerAI;
             playerAI.AddVerbs(
+                new TargetVerb<Eat>("eat"),
+                new SimpleVerb<ActOnAll<Take>>("take all"),
                 new TargetVerb<Take>("take", "get", "pick up"),
+                new SimpleVerb<ActOnAll<Drop>>("drop all"),
                 new TargetVerb<Drop>("put down", "drop"),
                 new ToolVerb<WeaponStrike>("hit", "attack", "strike"),
-                new SimpleVerb<WaitAction>("wait","delay")
+                new SimpleVerb<WaitAction>("wait","delay"),
+                new TargetVerb<Enter>("enter"),
+                new DirectionVerb<GoDirection>("go"),
+                new DirectionVerb<GoDirection>()
             );
             player.AI = playerAI;
             player.Act();

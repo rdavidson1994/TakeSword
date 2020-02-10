@@ -70,7 +70,12 @@ namespace TakeSwordTests
                 return new FakeAction(actor);
             }
 
-            public void ReactToAnnouncement(object announcement)
+            public IAction Peek()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void ReactToAnnouncement(ActionAnnouncement announcement)
             {
                 throw new NotImplementedException();
             }

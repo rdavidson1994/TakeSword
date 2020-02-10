@@ -2,7 +2,8 @@
 {
     public interface IRoutine : IActivity
     {
+        IAction Peek();
         IAction NextAction();
-        void ReactToAnnouncement(object announcement);
+        void ReactToAnnouncement(ActionAnnouncement announcement);
     }
 }

@@ -5,7 +5,7 @@ namespace TakeSword
     public class Portal : GameObject
     {
         public Direction Direction { get; protected set; }
-        protected Portal Opposite { get; set; }
+        public Portal Opposite { get; protected set; }
 
         public Portal(
             Direction direction,

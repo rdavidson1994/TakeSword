@@ -50,8 +50,16 @@ namespace TakeSword
         {
             return Enumerable.Concat(
                 contents,
-                Location.NearbyObjects(SightRange)).Where((obj)=>obj.HasName(this, name)
-            );
+                Location.NearbyObjects(SightRange)
+            ).Where(obj=>obj.HasName(this, name));
+        }
+
+        public IEnumerable<GameObject> ItemsInReach()
+        {
+            return Enumerable.Concat(
+                contents,
+                Location.NearbyObjects(Reach) 
+            ).Where(obj => obj != this);
         }
 
         public GameObject ObjectByName(string name)
@@ -78,7 +86,7 @@ namespace TakeSword
             return new SuccessfulOutcome();
         }
 
-        protected override void ReactToAnnouncement(object announcement)
+        protected override void ReactToAnnouncement(ActionAnnouncement announcement)
         {
             if (AI != null)
             {

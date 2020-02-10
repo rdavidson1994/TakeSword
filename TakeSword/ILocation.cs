@@ -6,7 +6,7 @@ namespace TakeSword
     {
         bool BeEntered(GameObject gameObject);
         bool BeExited(GameObject gameObject);
-        void HandleAnnouncement(object announcement);
+        void HandleAnnouncement(ActionAnnouncement announcement);
         IEnumerable<GameObject> NearbyObjects(long range);
         ISchedule Schedule { get; }
     }

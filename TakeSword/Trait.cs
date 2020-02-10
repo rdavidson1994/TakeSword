@@ -6,14 +6,18 @@ namespace TakeSword
     {
         public static Type DirectSubtype<T>() where T : Trait
         {
-            Type prevType = typeof(T);
-            Type nextType = prevType;
+            Type currentType = typeof(T);
+            if (currentType == typeof(Trait))
+            {
+                throw new NotSupportedException();
+            }
+            Type nextType = currentType;
             while (nextType != typeof(Trait))
             {
-                prevType = nextType;
-                nextType = prevType.BaseType;
+                currentType = nextType;
+                nextType = currentType.BaseType;
             }
-            return prevType;
+            return currentType;
         }
         public Trait Copy()
         {

@@ -55,12 +55,9 @@ namespace TakeSword
             return Actor;
         }
 
-        public override void ReactToAnnouncement(object announcement)
+        public override void ReactToAnnouncement(ActionAnnouncement announcement)
         {
-            if (
-                announcement is ActionAnnouncement actionAnnouncement
-                && actionAnnouncement.Activity is PhysicalAction physicalAction
-                )
+            if (announcement.Is(out PhysicalAction physicalAction))
             {
                 userInterface.PrintOutput(physicalAction.AnnouncementText(Actor));
             }
@@ -74,10 +71,8 @@ namespace TakeSword
 
         public override IActivity NextActivity()
         {
-            //userInterface.PrintOutput("Player's turn!");
             while (true)
             {
-                //userInterface.PrintOutput("Seeking action.");
                 string input;
                 if (storedInput != null)
                 {
@@ -126,7 +121,7 @@ namespace TakeSword
             var candidates = objects.ToList();
             while (candidates.Count > 1)
             {
-                userInterface.PrintOutput($"There are things called '{name}'. Which did you mean?");
+                userInterface.PrintOutput($"There are multiple things called '{name}'. Which did you mean?");
                 char letter = 'a';
                 foreach (GameObject candidate in candidates)
                 {
