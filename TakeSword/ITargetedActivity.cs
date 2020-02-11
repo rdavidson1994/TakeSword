@@ -1,11 +1,11 @@
 ﻿namespace TakeSword
 {
-    public interface ITargetedActivity : IPhysicalActivity
+    public interface ITargetedActivity : IActivity<PhysicalActor>
     {
         GameObject Target { get; set; }
     }
 
-    public interface IDirectionActivity : IPhysicalActivity
+    public interface IDirectionActivity : IActivity<PhysicalActor>
     {
         Direction Direction { get; set; }
     }

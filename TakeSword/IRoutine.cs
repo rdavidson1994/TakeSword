@@ -1,9 +1,9 @@
 ﻿namespace TakeSword
 {
-    public interface IRoutine : IActivity
+    public interface IRoutine<TActor> : IActivity<TActor>
     {
-        IAction Peek();
-        IAction NextAction();
+        IAction<TActor> Peek();
+        IAction<TActor> NextAction();
         void ReactToAnnouncement(ActionAnnouncement announcement);
     }
 }

@@ -8,7 +8,7 @@ namespace TakeSword
         Actor, Target, Tool, Bystander
     }
 
-    public abstract class PhysicalAction : IAction, IPhysicalActivity
+    public abstract class PhysicalAction : IAction<PhysicalActor>
     {
         protected abstract string Name { get; }
 
@@ -30,10 +30,6 @@ namespace TakeSword
         public long OnsetTime { get; set; } = 750;
         public long CooldownTime { get; set; } = 250;
         public PhysicalActor Actor { get; set; }
-        public IActor GetActor()
-        {
-            return Actor;
-        }
         protected ActionOutcome Succeed()
         {
             return new SuccessfulOutcome();
@@ -46,9 +42,9 @@ namespace TakeSword
         {
             return gameObject.DisplayName(Actor);
         }
-        public IRoutine AsRoutine()
+        public IRoutine<PhysicalActor> AsRoutine()
         {
-            return new WrapperRoutine(this);
+            return new WrapperRoutine<PhysicalActor>(this);
         }
         private void Announce(ActionOutcome outcome)
         {
@@ -247,24 +243,23 @@ namespace TakeSword
         }
     }
 
-    public class AutoFailAction : IAction
+    public class AutoFailAction<TActor> : IAction<TActor>
     {
-        private IActor actor;
         private FailedOutcome staticFailedOutcome;
 
         public long OnsetTime => 0;
 
         public long CooldownTime => 0;
         
-        public AutoFailAction(IActor actor, FailedOutcome staticFailedOutcome)
+        public AutoFailAction(TActor actor, FailedOutcome staticFailedOutcome)
         {
-            this.actor = actor;
+            this.Actor = actor;
             this.staticFailedOutcome = staticFailedOutcome;
         }
 
-        public IRoutine AsRoutine()
+        public IRoutine<TActor> AsRoutine()
         {
-            return new WrapperRoutine(this);
+            return new WrapperRoutine<TActor>(this);
         }
 
         public ActionOutcome Attempt()
@@ -272,10 +267,7 @@ namespace TakeSword
             return staticFailedOutcome;
         }
 
-        public IActor GetActor()
-        {
-            return actor;
-        }
+        public TActor Actor { get; set; }
 
         public ActionOutcome IsValid()
         {

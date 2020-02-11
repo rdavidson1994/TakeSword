@@ -4,14 +4,9 @@ using System.Text;
 
 namespace TakeSword
 {
-    public enum AnnouncementContext
+    public class ActionAnnouncement<TActor>
     {
-        Before,
-        After
-    }
-    public class ActionAnnouncement
-    {
-        public ActionAnnouncement(IActivity activity, ActionOutcome outcome, TargetType relationship)
+        public ActionAnnouncement(IActivity<TActor> activity, ActionOutcome outcome, TargetType relationship)
         {
             Activity = activity;
             Outcome = outcome;
@@ -30,13 +25,8 @@ namespace TakeSword
                 return false;
             }
         }
-        public IActivity Activity { get; private set; }
+        public IActivity<TActor> Activity { get; private set; }
         public ActionOutcome Outcome { get; private set; }
         public TargetType Relationship { get; private set; }
-    }
-
-    public interface IReaction
-    {
-        void Handle(object input);
     }
 }

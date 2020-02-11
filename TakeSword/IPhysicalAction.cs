@@ -1,7 +1,7 @@
 ﻿namespace TakeSword
 {
-    public interface IPhysicalActivity : IActivity
-    {
-        PhysicalActor Actor { get; set; }
-    }
+    //public interface IActivity<PhysicalActor> : IActivity<IActor>
+    //{
+    //    PhysicalActor Actor { get; set; }
+    //}
 }

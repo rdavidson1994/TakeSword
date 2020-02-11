@@ -1,10 +1,10 @@
 ﻿namespace TakeSword
 {
-    public interface IActivity
+    public interface IActivity<TActor>
     {
-        IActor GetActor();
+        TActor Actor { get; set; }
 
-        IRoutine AsRoutine();
+        IRoutine<TActor> AsRoutine();
         ActionOutcome IsValid();
     }
 }

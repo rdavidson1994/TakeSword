@@ -15,11 +15,11 @@ namespace TakeSword
         public PhysicalActor(ILocation location = null, FrozenTraitStore traits = null) : base(location, traits) { }
 
         protected IEvent ScheduledEvent { get; set; }
-        public IRoutine AI { get; set; }
+        public IRoutine<IActor> AI { get; set; }
 
         public void Act()
         {
-            IAction action = AI.NextAction();
+            IAction<IActor> action = AI.NextAction();
             IEvent actionEvent = new ActionEvent() {
                 Action = action,
                 Actor = this,
@@ -33,7 +33,7 @@ namespace TakeSword
             return Contents.Contains(item);
         }
 
-        public void AttemptAction(IAction action)
+        public void AttemptAction(IAction<IActor> action)
         {
             action.Attempt();
             IEvent cooldownEvent = new CooldownEvent()
@@ -98,7 +98,7 @@ namespace TakeSword
     
     public class ActionEvent : IEvent
     {
-        public IAction Action { get; set; }
+        public IAction<IActor> Action { get; set; }
         public IActor Actor { get; set; }
 
         public void Happen()
@@ -110,7 +110,7 @@ namespace TakeSword
     public class CooldownEvent : IEvent
     {
         public IActor Actor { get; set; }
-        public IAction Action { get; set; }
+        public IAction<IActor> Action { get; set; }
         public void Happen()
         {
             Actor.Act();

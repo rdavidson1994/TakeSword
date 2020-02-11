@@ -4,14 +4,15 @@ using System.Linq;
 
 namespace TakeSword
 {
-    public abstract class ActivityRoutine : IRoutine
+    public abstract class ActivityRoutine<TActor> : IRoutine<TActor>
     {
         public virtual FormattableString EmptyReason { get; protected set; } = $"You can't do that right now.";
-        private IRoutine Routine { get; set; }
-        protected IAction StoredAction { get; private set; }
-        public abstract IActor GetActor();
-        public abstract IActivity NextActivity();
-        public IAction NextAction()
+        private IRoutine<TActor> Routine { get; set; }
+        protected IAction<TActor> StoredAction { get; private set; }
+        public abstract TActor Actor { get; set; }
+
+        public abstract IActivity<TActor> NextActivity();
+        public IAction<TActor> NextAction()
         {
             if (StoredAction != null)
             {
@@ -22,7 +23,7 @@ namespace TakeSword
             }
             if (Routine != null)
             {
-                IAction action = Routine.NextAction();
+                IAction<TActor> action = Routine.NextAction();
                 if (action != null)
                 {
                     return action;
@@ -33,12 +34,12 @@ namespace TakeSword
                 }
             }
 
-            IActivity activity = NextActivity();
+            IActivity<TActor> activity = NextActivity();
             if (activity == null)
             {
                 return null;
             }
-            if (activity is IAction atomicAction)
+            if (activity is IAction<TActor> atomicAction)
             {
                 return atomicAction;
             }
@@ -50,7 +51,7 @@ namespace TakeSword
         }
 
         //Return the next action, but don't discard it
-        public IAction Peek()
+        public IAction<TActor> Peek()
         {
             if (StoredAction == null)
             {
@@ -69,7 +70,7 @@ namespace TakeSword
             return new FailedOutcome(EmptyReason);
         }
 
-        public IRoutine AsRoutine()
+        public IRoutine<TActor> AsRoutine()
         {
             return this;
         }
@@ -83,13 +84,13 @@ namespace TakeSword
         }
     }
 
-    public abstract class SingleActivity : PhysicalRoutine
+    public abstract class SingleActivity<TActor> : ActivityRoutine<TActor>
     {
         private bool done = false;
 
-        public abstract IActivity GetActivity();
+        public abstract IActivity<TActor> GetActivity();
 
-        public override IActivity NextActivity()
+        public override IActivity<TActor> NextActivity()
         {
             if (done)
             {
@@ -104,24 +105,21 @@ namespace TakeSword
     }
 
 
-    public class WrapperRoutine : ActivityRoutine
+    public class WrapperRoutine<TActor> : ActivityRoutine<TActor>
     {
         private bool done;
-        private IActor actor;
-        private IActivity wrappedActivity;
+        private IActivity<TActor> wrappedActivity;
 
-        public WrapperRoutine(IActivity wrappedActivity)
+        public WrapperRoutine(IActivity<TActor> wrappedActivity)
         {
-            actor = wrappedActivity.GetActor();
+            Actor = wrappedActivity.Actor;
             done = false;
             this.wrappedActivity = wrappedActivity;
         }
-        public override IActor GetActor()
-        {
-            return actor;
-        }
 
-        public override IActivity NextActivity()
+        public override TActor Actor { get; set; }
+
+        public override IActivity<TActor> NextActivity()
         {
             if (done)
             {
@@ -137,20 +135,17 @@ namespace TakeSword
 
 
 
-    public abstract class PhysicalRoutine : ActivityRoutine, IPhysicalActivity
-    {
-        public PhysicalActor Actor { get; set; }
+    //public abstract class ActivityRoutine<PhysicalActor> : ActivityRoutine, IActivity<PhysicalActor>
+    //{
+    //    public PhysicalActor Actor { get; set; }
 
-        public override IActor GetActor()
-        {
-            return Actor;
-        }
-    }
+    //    public override IActor Actor => Actor;
+    //}
 
-    public abstract class GeneratorRoutine : PhysicalRoutine
+    public abstract class GeneratorRoutine<TActor> : ActivityRoutine<TActor>
     {
-        protected abstract IEnumerable<IActivity> Activities();
-        private IEnumerator<IActivity> activityEnumerator;
+        protected abstract IEnumerable<IActivity<TActor>> Activities();
+        private IEnumerator<IActivity<TActor>> activityEnumerator;
         public GeneratorRoutine()
         {
             activityEnumerator = Activities().GetEnumerator();
@@ -161,7 +156,7 @@ namespace TakeSword
             activityEnumerator?.Dispose();
         }
 
-        public override IActivity NextActivity()
+        public override IActivity<TActor> NextActivity()
         {
             if (activityEnumerator.MoveNext())
             {
@@ -171,9 +166,11 @@ namespace TakeSword
         }
     }
 
-    public class ActOnAll<ActionType> : GeneratorRoutine where ActionType : ITargetedActivity, new()
+    public class ActOnAll<ActionType> : GeneratorRoutine<PhysicalActor> where ActionType : ITargetedActivity, new()
     {
-        protected override IEnumerable<IActivity> Activities()
+        public override PhysicalActor Actor { get; set; }
+
+        protected override IEnumerable<IActivity<PhysicalActor>> Activities()
         {
             foreach (var item in Actor.ItemsInReach().ToList())
             {
@@ -191,31 +188,12 @@ namespace TakeSword
         }
     }
 
-    public class TakeAll : GeneratorRoutine
-    {
-        protected override IEnumerable<IActivity> Activities()
-        {
-            foreach (var item in Actor.ItemsInReach().ToList())
-            {
-                var action = new Take
-                {
-                    Actor = Actor,
-                    Target = item
-                };
-                if (action.IsValid())
-                {
-                    yield return action;
-                }
-            }
-            yield break;
-        }
-    }
-
-    public class GoDirection : SingleActivity, IDirectionActivity
+    public class GoDirection : SingleActivity<PhysicalActor>, IDirectionActivity
     {
         public Direction Direction { get; set; }
+        public override PhysicalActor Actor { get; set; }
 
-        public override IActivity GetActivity()
+        public override IActivity<PhysicalActor> GetActivity()
         {
             IEnumerable<Portal> portals = Actor.ItemsInReach()
                 .Select(item => item as Portal)

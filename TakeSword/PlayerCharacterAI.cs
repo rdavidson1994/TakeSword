@@ -37,22 +37,14 @@ namespace TakeSword
         }
     }
 
-    public class PlayerCharacterAI : ActivityRoutine, IVerbalAI
+    public class PlayerCharacterAI : ActivityRoutine<PhysicalActor>, IVerbalAI<PhysicalActor>
     {
-        protected PhysicalActor Actor { get; set; }
-
         private IUserInterface userInterface;
         private string storedInput;
-
         public PlayerCharacterAI(PhysicalActor actor, IUserInterface userInterface)
         {
             Actor = actor;
             this.userInterface = userInterface;
-        }
-
-        PhysicalActor IVerbalAI.GetActor()
-        {
-            return Actor;
         }
 
         public override void ReactToAnnouncement(ActionAnnouncement announcement)
@@ -69,7 +61,7 @@ namespace TakeSword
             this.verbs.AddRange(verbs);
         }
 
-        public override IActivity NextActivity()
+        public override IActivity<PhysicalActor> NextActivity()
         {
             while (true)
             {
@@ -150,8 +142,6 @@ namespace TakeSword
             }
             return candidates[0];
         }
-
-        public override IActor GetActor() => Actor;
 
         public IEnumerable<GameObject> ObjectsWithName(string name) => Actor.TargetsByName(name);
     }

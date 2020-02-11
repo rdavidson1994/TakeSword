@@ -3,6 +3,6 @@
     public interface IActor
     {
         void Act();
-        void AttemptAction(IAction action);
+        void AttemptAction(IAction<IActor> action);
     }
 }

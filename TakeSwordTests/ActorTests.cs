@@ -9,7 +9,7 @@ namespace TakeSwordTests
     [TestFixture]
     class ActorTests
     {
-        private class FakeAction : IAction
+        private class FakeAction : IAction<IActor>
         {
             private IActor actor;
             public bool wasAttempted;
@@ -27,22 +27,19 @@ namespace TakeSwordTests
                 return new SuccessfulOutcome();
             }
 
-            public IActor GetActor()
-            {
-                return actor;
-            }
+            public IActor Actor => actor;
 
             public ActionOutcome IsValid()
             {
                 return new SuccessfulOutcome();
             }
 
-            public IRoutine AsRoutine()
+            public IRoutine<IActor> AsRoutine()
             {
                 throw new NotImplementedException();
             }
         }
-        private class FakeRoutine : IRoutine
+        private class FakeRoutine : IRoutine<IActor>
         {
             private IActor actor;
             public FakeRoutine(IActor actor)
@@ -50,27 +47,24 @@ namespace TakeSwordTests
                 this.actor = actor;
             }
 
-            public IRoutine AsRoutine()
+            public IRoutine<IActor> AsRoutine()
             {
                 throw new NotImplementedException();
             }
 
-            public IActor GetActor()
-            {
-                return actor;
-            }
+            public IActor Actor => actor;
 
             public ActionOutcome IsValid()
             {
                 throw new NotImplementedException();
             }
 
-            public IAction NextAction()
+            public IAction<IActor> NextAction()
             {
                 return new FakeAction(actor);
             }
 
-            public IAction Peek()
+            public IAction<IActor> Peek()
             {
                 throw new NotImplementedException();
             }

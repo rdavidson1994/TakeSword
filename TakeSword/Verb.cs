@@ -14,7 +14,7 @@ namespace TakeSword
         }
 
 
-        public IActivity Interpret(IVerbalAI ai, string input)
+        public IActivity<IActor> Interpret(IVerbalAI<PhysicalActor> ai, string input)
         {
             var lookupTable = Parser.Match(input);
             if (lookupTable == null)
@@ -24,18 +24,18 @@ namespace TakeSword
             return BuildActivity(ai, lookupTable);
         }
 
-        protected abstract IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup);
+        protected abstract IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup);
     }
 
-    public class SimpleVerb<ActionType> : Verb where ActionType : IPhysicalActivity, new()
+    public class SimpleVerb<ActionType> : Verb where ActionType : IActivity<PhysicalActor>, new()
     {
         public SimpleVerb(params string[] synonyms) : base("VERB", synonyms)
         {
         }
 
-        protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
+        protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
-            return new ActionType { Actor = ai.GetActor() };
+            return new ActionType { Actor = ai.Actor };
         }
     }
 
@@ -43,13 +43,13 @@ namespace TakeSword
     {
         public TargetVerb(params string[] synonyms) : base("VERB TARGET", synonyms) { }
 
-        protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
+        protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
             List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
             if (targets.Count == 0)
             {
                 return new AutoFailAction(
-                    ai.GetActor(),
+                    ai.Actor,
                     new FailedOutcome($"There is no {lookup["TARGET"]} here")
                 );
             }
@@ -61,7 +61,7 @@ namespace TakeSword
                     from target in targets
                     select new ActionType
                     {
-                        Actor = ai.GetActor(),
+                        Actor = ai.Actor,
                         Target = target,
                     };
                 activities = new List<ActionType>(query);
@@ -95,7 +95,7 @@ namespace TakeSword
     {
         public ToolVerb(params string[] synonyms) : base("VERB TARGET with TOOL", synonyms) { }
 
-        protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
+        protected override IActivity<IActor> BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
         {
             List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
             if (targets.Count == 0)
@@ -164,7 +164,7 @@ namespace TakeSword
         public DirectionVerb() : base("DIRECTION") { }
         public DirectionVerb(params string[] synonyms) : base("VERB DIRECTION", synonyms) { }
 
-        protected override IActivity BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
+        protected override IActivity<IActor> BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
         {
             var direction = DirectionConverter.FromString(lookup["DIRECTION"]);
             if (direction == Direction.None)
