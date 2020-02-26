@@ -4,28 +4,38 @@ using System.Text;
 
 namespace TakeSword
 {
-    public class ActionAnnouncement<TActor>
+    public class ActionAnnouncement
     {
-        public ActionAnnouncement(IActivity<TActor> activity, ActionOutcome outcome, TargetType relationship)
+        public bool For(TargetType relationship)
         {
-            Activity = activity;
+            return Relationship == relationship;
+        }
+        public ActionAnnouncement(object content, ActionOutcome outcome, TargetType relationship)
+        {
+            Content = content;
             Outcome = outcome;
             Relationship = relationship;
         }
-        public bool Is<T>(out T action) where T : class
+        public bool Is<T>(out T typedContent, TargetType relationship, bool successful=true) where T : class
         {
-            if (Activity != null && Activity is T tAction)
+
+            if (Relationship != relationship || Content == null || Outcome != successful)
             {
-                action = tAction;
+                typedContent = null;
+                return false;
+            }
+            if (Content != null && Content is T typedResult)
+            {
+                typedContent = typedResult;
                 return true;
             }
             else
             {
-                action = null;
+                typedContent = null;
                 return false;
             }
         }
-        public IActivity<TActor> Activity { get; private set; }
+        public object Content { get; private set; }
         public ActionOutcome Outcome { get; private set; }
         public TargetType Relationship { get; private set; }
     }

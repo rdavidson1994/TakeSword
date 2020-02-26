@@ -9,7 +9,7 @@ namespace TakeSword
         public virtual FormattableString EmptyReason { get; protected set; } = $"You can't do that right now.";
         private IRoutine<TActor> Routine { get; set; }
         protected IAction<TActor> StoredAction { get; private set; }
-        public abstract TActor Actor { get; set; }
+        public TActor Actor { get; set; }
 
         public abstract IActivity<TActor> NextActivity();
         public IAction<TActor> NextAction()
@@ -117,7 +117,7 @@ namespace TakeSword
             this.wrappedActivity = wrappedActivity;
         }
 
-        public override TActor Actor { get; set; }
+        //public override TActor Actor { get; set; }
 
         public override IActivity<TActor> NextActivity()
         {
@@ -168,7 +168,7 @@ namespace TakeSword
 
     public class ActOnAll<ActionType> : GeneratorRoutine<PhysicalActor> where ActionType : ITargetedActivity, new()
     {
-        public override PhysicalActor Actor { get; set; }
+        //public override PhysicalActor Actor { get; set; }
 
         protected override IEnumerable<IActivity<PhysicalActor>> Activities()
         {
@@ -191,7 +191,7 @@ namespace TakeSword
     public class GoDirection : SingleActivity<PhysicalActor>, IDirectionActivity
     {
         public Direction Direction { get; set; }
-        public override PhysicalActor Actor { get; set; }
+       // public override PhysicalActor Actor { get; set; }
 
         public override IActivity<PhysicalActor> GetActivity()
         {

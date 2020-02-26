@@ -4,23 +4,21 @@ using System.Linq;
 
 namespace TakeSword
 {
-    public interface IPhysicalActor : IGameObject, IActor, ILocation
+    public class Skillset
     {
-        bool CanReach(IGameObject target);
-        bool HasItem(IGameObject item);
-    };
 
-    public class PhysicalActor : GameObject, IPhysicalActor
+    }
+    public class PhysicalActor : GameObject, IActor<PhysicalActor>
     {
         public PhysicalActor(ILocation location = null, FrozenTraitStore traits = null) : base(location, traits) { }
-
         protected IEvent ScheduledEvent { get; set; }
-        public IRoutine<IActor> AI { get; set; }
+        public IRoutine<PhysicalActor> AI { get; set; }
+        protected Dictionary<SkillType, double> skillValues;
 
         public void Act()
         {
-            IAction<IActor> action = AI.NextAction();
-            IEvent actionEvent = new ActionEvent() {
+            IAction<PhysicalActor> action = AI.NextAction();
+            IEvent actionEvent = new ActionEvent<PhysicalActor>() {
                 Action = action,
                 Actor = this,
             };
@@ -28,15 +26,29 @@ namespace TakeSword
             Schedule.Add(actionEvent, action.OnsetTime);
         }
 
+        public int MeleeDamage(GameObject weapon)
+        {
+            double damage = new Random().Next(10, 50);
+            if (weapon.Is(out Weapon actualWeapon))
+            {
+                damage *= actualWeapon.DamageMultiplier;
+            }
+            if (Is(out PhysicalStats stats))
+            {
+                damage *= stats.Strength;
+            }
+            return Convert.ToInt32(damage);
+        }
+
         public bool HasItem(IGameObject item)
         {
             return Contents.Contains(item);
         }
 
-        public void AttemptAction(IAction<IActor> action)
+        public void AttemptAction(IAction<PhysicalActor> action)
         {
             action.Attempt();
-            IEvent cooldownEvent = new CooldownEvent()
+            IEvent cooldownEvent = new CooldownEvent<PhysicalActor>()
             {
                 Actor = this,
             };
@@ -96,10 +108,10 @@ namespace TakeSword
         }
     }
     
-    public class ActionEvent : IEvent
+    public class ActionEvent<T> : IEvent
     {
-        public IAction<IActor> Action { get; set; }
-        public IActor Actor { get; set; }
+        public IAction<T> Action { get; set; }
+        public IActor<T> Actor { get; set; }
 
         public void Happen()
         {
@@ -107,10 +119,10 @@ namespace TakeSword
         }
     }
 
-    public class CooldownEvent : IEvent
+    public class CooldownEvent<T> : IEvent
     {
-        public IActor Actor { get; set; }
-        public IAction<IActor> Action { get; set; }
+        public IActor<T> Actor { get; set; }
+        public IAction<T> Action { get; set; }
         public void Happen()
         {
             Actor.Act();

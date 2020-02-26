@@ -117,7 +117,10 @@ namespace TakeSword
             Move(new OffscreenLocation());
         }
 
-
+        public virtual void TakeDamage(int amount, DamageType type)
+        {
+            // do nothing
+        }
 
         public bool BeEntered(GameObject gameObject)
         {
@@ -133,9 +136,14 @@ namespace TakeSword
 
         protected void BroadcastAnnouncement(ActionAnnouncement announcement)
         {
+            ActionAnnouncement announcementForBystanders = new ActionAnnouncement(
+                content: announcement.Content,
+                outcome: announcement.Outcome,
+                relationship: TargetType.Bystander
+            );
             foreach (GameObject gameObject in contents)
             {
-                gameObject.HandleAnnouncement(announcement);
+                gameObject.HandleAnnouncement(announcementForBystanders);
             }
         }
 
@@ -153,7 +161,13 @@ namespace TakeSword
         public void HandleAnnouncement(ActionAnnouncement announcement)
         {
             ReactToAnnouncement(announcement);
-            BroadcastAnnouncement(announcement);
+            // Maybe we should only do this if announcement.relationship == TargetType.Scene?
+            var bystanderAnnouncement = new ActionAnnouncement(
+                content: announcement.Content,
+                outcome: announcement.Outcome,
+                relationship: TargetType.Bystander
+            );
+            BroadcastAnnouncement(bystanderAnnouncement);
         }
 
         public IEnumerable<GameObject> NearbyObjects(long range)

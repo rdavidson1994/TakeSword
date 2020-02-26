@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TakeSword
 {
+
     public class Trait
     {
         public static Type DirectSubtype<T>() where T : Trait
@@ -25,6 +27,25 @@ namespace TakeSword
         }
     }
 
+    public enum SkillType
+    {
+        MiscWeapon,
+        Sword,
+        Mace,
+        // ...more tbd
+    }
+
+    public class PhysicalStats : Trait
+    {
+        public float Strength { get; set; }
+
+        public float Agility { get; set; }
+
+        public float Toughness { get; set; }
+
+        public float Dexterity { get; set; }
+    }
+
     public class ItemTrait : Trait
     {
         // in grams
@@ -38,6 +59,7 @@ namespace TakeSword
 
     public class Weapon : Trait
     {
+        public SkillType SkillType { get; set; }
         public double DamageMultiplier { get; set; }
         public DamageType DamageType { get; set; }
     }

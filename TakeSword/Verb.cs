@@ -14,7 +14,7 @@ namespace TakeSword
         }
 
 
-        public IActivity<IActor> Interpret(IVerbalAI<PhysicalActor> ai, string input)
+        public IActivity<PhysicalActor> Interpret(IVerbalAI<PhysicalActor> ai, string input)
         {
             var lookupTable = Parser.Match(input);
             if (lookupTable == null)
@@ -48,7 +48,7 @@ namespace TakeSword
             List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
             if (targets.Count == 0)
             {
-                return new AutoFailAction(
+                return new AutoFailAction<PhysicalActor>(
                     ai.Actor,
                     new FailedOutcome($"There is no {lookup["TARGET"]} here")
                 );
@@ -95,19 +95,19 @@ namespace TakeSword
     {
         public ToolVerb(params string[] synonyms) : base("VERB TARGET with TOOL", synonyms) { }
 
-        protected override IActivity<IActor> BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
+        protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
             List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
             if (targets.Count == 0)
-                return new AutoFailAction(
-                    ai.GetActor(),
+                return new AutoFailAction<PhysicalActor>(
+                    ai.Actor,
                     new FailedOutcome($"There is no {lookup["TARGET"]} here.")
                 );
 
             List<GameObject> tools = ai.ObjectsWithName(lookup["TOOL"]).ToList();
             if (tools.Count == 0)
-                return new AutoFailAction(
-                    ai.GetActor(),
+                return new AutoFailAction<PhysicalActor>(
+                    ai.Actor,
                     new FailedOutcome($"There is no {lookup["TOOL"]} here.")
                 );
             List<ActionType> activities = null;
@@ -119,7 +119,7 @@ namespace TakeSword
                     from tool in tools
                     select new ActionType
                     {
-                        Actor = ai.GetActor(),
+                        Actor = ai.Actor,
                         Target = target,
                         Tool = tool,
                     };
@@ -164,7 +164,7 @@ namespace TakeSword
         public DirectionVerb() : base("DIRECTION") { }
         public DirectionVerb(params string[] synonyms) : base("VERB DIRECTION", synonyms) { }
 
-        protected override IActivity<IActor> BuildActivity(IVerbalAI ai, Dictionary<string, string> lookup)
+        protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
             var direction = DirectionConverter.FromString(lookup["DIRECTION"]);
             if (direction == Direction.None)
@@ -177,7 +177,7 @@ namespace TakeSword
             }
             return new ActionType()
             {
-                Actor = ai.GetActor(),
+                Actor = ai.Actor,
                 Direction = direction
             };
         }

@@ -9,13 +9,24 @@ namespace TakeSwordTests
     [TestFixture]
     class ActorTests
     {
-        private class FakeAction : IAction<IActor>
+        private class FakeActor : IActor<FakeActor>
         {
-            private IActor actor;
-            public bool wasAttempted;
-            public FakeAction(IActor actor)
+            public void Act()
             {
-                this.actor = actor;
+                throw new NotImplementedException();
+            }
+
+            public void AttemptAction(IAction<FakeActor> action)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        private class FakeAction : IAction<FakeActor>
+        {
+            public bool wasAttempted;
+            public FakeAction(FakeActor actor)
+            {
+                Actor = actor;
             }
             public long OnsetTime => 0;
 
@@ -27,44 +38,42 @@ namespace TakeSwordTests
                 return new SuccessfulOutcome();
             }
 
-            public IActor Actor => actor;
+            public FakeActor Actor { get; set; }
 
             public ActionOutcome IsValid()
             {
                 return new SuccessfulOutcome();
             }
 
-            public IRoutine<IActor> AsRoutine()
+            public IRoutine<FakeActor> AsRoutine()
             {
                 throw new NotImplementedException();
             }
         }
-        private class FakeRoutine : IRoutine<IActor>
+        private class FakeRoutine : IRoutine<FakeActor>
         {
-            private IActor actor;
-            public FakeRoutine(IActor actor)
+            public FakeActor Actor { get; set; }
+            public FakeRoutine(FakeActor actor)
             {
-                this.actor = actor;
+                Actor = actor;
             }
 
-            public IRoutine<IActor> AsRoutine()
+            public IRoutine<FakeActor> AsRoutine()
             {
                 throw new NotImplementedException();
             }
-
-            public IActor Actor => actor;
 
             public ActionOutcome IsValid()
             {
                 throw new NotImplementedException();
             }
 
-            public IAction<IActor> NextAction()
+            public IAction<FakeActor> NextAction()
             {
-                return new FakeAction(actor);
+                return new FakeAction(Actor);
             }
 
-            public IAction<IActor> Peek()
+            public IAction<FakeActor> Peek()
             {
                 throw new NotImplementedException();
             }

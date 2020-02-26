@@ -41,6 +41,7 @@ namespace TakeSword
     {
         private IUserInterface userInterface;
         private string storedInput;
+        private List<Verb> verbs = new List<Verb>();
         public PlayerCharacterAI(PhysicalActor actor, IUserInterface userInterface)
         {
             Actor = actor;
@@ -49,13 +50,15 @@ namespace TakeSword
 
         public override void ReactToAnnouncement(ActionAnnouncement announcement)
         {
-            if (announcement.Is(out PhysicalAction physicalAction))
+            if (announcement.Is(out PhysicalAction physicalAction, TargetType.Bystander))
             {
                 userInterface.PrintOutput(physicalAction.AnnouncementText(Actor));
             }
+            if (announcement.Is(out PhysicalAction failedPhysicalAction, TargetType.Bystander, successful: false))
+            {
+                //userInterface.PrintOutput();
+            }
         }
-
-        private List<Verb> verbs = new List<Verb>();
         public void AddVerbs(params Verb[] verbs)
         {
             this.verbs.AddRange(verbs);

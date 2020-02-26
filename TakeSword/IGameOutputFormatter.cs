@@ -4,7 +4,7 @@ namespace TakeSword
 {
     public interface IGameOutputFormatter
     {
-        IVerbalAI VerbalAI { get; set; }
+        IVerbalAI<PhysicalActor> VerbalAI { get; set; }
 
         string FormatString(FormattableString formattableString);
     }

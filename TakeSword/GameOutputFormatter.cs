@@ -7,7 +7,7 @@ namespace TakeSword
 {
     public class ConsoleOutputFormatter : IGameOutputFormatter
     {
-        public IVerbalAI VerbalAI { get; set; }
+        public IVerbalAI<PhysicalActor> VerbalAI { get; set; }
         public string FormatString(FormattableString formattableString)
         {
             var pieces = Regex.Split(formattableString.Format, @"{\d+}");
@@ -20,7 +20,7 @@ namespace TakeSword
                 object argument = arguments[i];
                 if (argument is GameObject gameObject)
                 {
-                    outList.Add(gameObject.DisplayName(VerbalAI.GetActor()));
+                    outList.Add(gameObject.DisplayName(VerbalAI.Actor));
                 }
                 else
                 {

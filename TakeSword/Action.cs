@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-
 namespace TakeSword
 {
     public enum TargetType
     {
-        Actor, Target, Tool, Bystander
+        None,
+        Actor,
+        Target,
+        Tool,
+        Bystander,
+        Scene,
     }
 
     public abstract class PhysicalAction : IAction<PhysicalActor>
@@ -53,6 +57,8 @@ namespace TakeSword
                 var announcement = new ActionAnnouncement(this, outcome, type);
                 stakeholder.HandleAnnouncement(announcement);
             }
+            var locationAnnouncement = new ActionAnnouncement(this, outcome, TargetType.Scene);
+            Actor.Location.HandleAnnouncement(locationAnnouncement);
         }
 
         protected ActionOutcome Has(GameObject gameObject)
@@ -199,6 +205,8 @@ namespace TakeSword
 
         protected override ActionOutcome Execute()
         {
+
+
             return Succeed();
         }
     }
@@ -224,7 +232,7 @@ namespace TakeSword
 
         public override ActionOutcome IsValid()
         {
-            if (Target.Is<Food>())
+            if (Target.Is(out Food _))
             {
                 return Has(Target);
             }
