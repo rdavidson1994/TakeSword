@@ -5,6 +5,12 @@ using Newtonsoft.Json;
 
 namespace TakeSword
 {
+    public class ObjectGloss
+    {
+        public GameObject Topic { get; set; }
+        public string Text { get; set; }
+    }
+
     public class ConsoleOutputFormatter : IGameOutputFormatter
     {
         public IVerbalAI<PhysicalActor> VerbalAI { get; set; }

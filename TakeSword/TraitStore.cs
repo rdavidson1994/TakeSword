@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace TakeSword
 {
@@ -119,16 +118,13 @@ namespace TakeSword
 
         public void Test()
         {
-            Add(new Food()
-            {
-                Nutrition = 40,
-            });
+            Add(new Food(nutrition: 40));
 
-            Add(new Weapon()
-            {
-                DamageMultiplier = 3.0,
-                DamageType = DamageType.Blunt
-            });
+            Add(new Weapon(
+                skillType: SkillType.Sword,
+                damageMultiplier: 3.0,
+                damageType: DamageType.Blunt
+            ));
         }
 
         public IEnumerator<Trait> GetEnumerator()

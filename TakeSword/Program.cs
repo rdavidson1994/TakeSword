@@ -10,11 +10,11 @@ namespace TakeSword
 
         static FrozenTraitStore swordTraits = new TraitStore()
         {
-            new Weapon()
-            {
-                DamageType = DamageType.Slashing,
-                DamageMultiplier = 4.0
-            }
+            new Weapon(
+                skillType: SkillType.Sword,
+                damageMultiplier: 4.0,
+                damageType: DamageType.Slashing
+            )
         }.Freeze();
 
         public static PhysicalActor MakeBandit()
@@ -65,15 +65,15 @@ namespace TakeSword
                 StringName = "apple",
                 Traits = new TraitStore()
                 {
-                    new Food { Nutrition = 300 },
-                    new ItemTrait { Weight = 200 }
+                    new Food(300),
+                    new InventoryItem(200)
                 }
             };
             //apple.AddTrait(new Food { Nutrition = 300 });
             //apple.AddTrait(new ItemTrait { Weight = 200 });
-            sword.AddTrait(new ItemTrait { Weight = 1500 });
+            sword.AddTrait(new InventoryItem ( weight : 1500 ));
             sword2.Name = new SimpleName("sword");
-            sword2.AddTrait(new ItemTrait { Weight = 1500 });
+            sword2.AddTrait(new InventoryItem(weight: 1500));
             PhysicalActor player = new PhysicalActor(place);
             var formatter = new ConsoleOutputFormatter();
             IUserInterface userInterface = new ConsoleUserInterface(formatter);

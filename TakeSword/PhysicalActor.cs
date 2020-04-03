@@ -4,10 +4,6 @@ using System.Linq;
 
 namespace TakeSword
 {
-    public class Skillset
-    {
-
-    }
     public class PhysicalActor : GameObject, IActor<PhysicalActor>
     {
         public PhysicalActor(ILocation location = null, FrozenTraitStore traits = null) : base(location, traits) { }

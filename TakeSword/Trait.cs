@@ -37,30 +37,55 @@ namespace TakeSword
 
     public class PhysicalStats : Trait
     {
-        public float Strength { get; set; }
+        public PhysicalStats(float strength, float agility, float toughness, float dexterity)
+        {
+            Strength = strength;
+            Agility = agility;
+            Toughness = toughness;
+            Dexterity = dexterity;
+        }
 
-        public float Agility { get; set; }
+        public float Strength { get; }
 
-        public float Toughness { get; set; }
+        public float Agility { get; }
 
-        public float Dexterity { get; set; }
+        public float Toughness { get; }
+
+        public float Dexterity { get; }
     }
 
-    public class ItemTrait : Trait
+    public class InventoryItem : Trait
     {
+        public InventoryItem(int weight)
+        {
+            Weight = weight;
+        }
+
         // in grams
-        public int Weight { get; set; }
+        public int Weight { get; }
     }
 
     public class Food : Trait
     {
-        public int Nutrition { get; set; }
+        public Food(int nutrition)
+        {
+            Nutrition = nutrition;
+        }
+
+        public int Nutrition { get; }
     }
 
     public class Weapon : Trait
     {
-        public SkillType SkillType { get; set; }
-        public double DamageMultiplier { get; set; }
-        public DamageType DamageType { get; set; }
+        public Weapon(SkillType skillType, double damageMultiplier, DamageType damageType)
+        {
+            SkillType = skillType;
+            DamageMultiplier = damageMultiplier;
+            DamageType = damageType;
+        }
+
+        public SkillType SkillType { get; }
+        public double DamageMultiplier { get; }
+        public DamageType DamageType { get; }
     }
 }
