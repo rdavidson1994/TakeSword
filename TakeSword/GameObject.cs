@@ -55,6 +55,11 @@ namespace TakeSword
             return (trait != null);
         }
 
+        public virtual FormattableString ShortDescription(PhysicalActor viewer)
+        {
+            return $"{this}";
+        }
+
         public bool Is<TraitType>() where TraitType : Trait
         {
             return Is(out TraitType _);
@@ -63,6 +68,22 @@ namespace TakeSword
         public TraitType As<TraitType>() where TraitType: Trait
         {
             return traits.Get<TraitType>();
+        }
+
+        public ActionOutcome Is<TraitType>(FormattableString reason) where TraitType : Trait
+        {
+            return Is(out TraitType _, reason);
+        }
+
+        public ActionOutcome Is<TraitType>(out TraitType trait, FormattableString reason) where TraitType : Trait
+        {
+            if (Is(out trait)) {
+                return new SuccessfulOutcome();
+            }
+            else
+            {
+                return new FailedOutcome(reason);
+            }
         }
 
         public string DisplayName(IGameObject viewer)
@@ -117,7 +138,7 @@ namespace TakeSword
             Move(new OffscreenLocation());
         }
 
-        public virtual void TakeDamage(int amount, DamageType type)
+        public virtual void TakeDamage(int amount, DamageType type, BodyPartKind bodyPart)
         {
             // do nothing
         }
@@ -139,7 +160,7 @@ namespace TakeSword
             ActionAnnouncement announcementForBystanders = new ActionAnnouncement(
                 content: announcement.Content,
                 outcome: announcement.Outcome,
-                relationship: TargetType.Bystander
+                relationship: TargetType.Witness
             );
             foreach (GameObject gameObject in contents)
             {
@@ -165,7 +186,7 @@ namespace TakeSword
             var bystanderAnnouncement = new ActionAnnouncement(
                 content: announcement.Content,
                 outcome: announcement.Outcome,
-                relationship: TargetType.Bystander
+                relationship: TargetType.Witness
             );
             BroadcastAnnouncement(bystanderAnnouncement);
         }
@@ -178,6 +199,11 @@ namespace TakeSword
         public bool RemoveTrait<T>() where T : Trait
         {
             return traits.Remove<T>();
+        }
+
+        public virtual FormattableString DescriptionForInhabitant(GameObject viewer)
+        {
+            return $"You are inside {this}";
         }
     }
 }

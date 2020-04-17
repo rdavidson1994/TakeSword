@@ -4,6 +4,7 @@ namespace TakeSword
 {
     public abstract class PhysicalAction : IAction<PhysicalActor>
     {
+        public virtual bool Quiet { get; set; }
         protected abstract string Name { get; }
 
         protected virtual string RelativeName(IGameObject viewer)
@@ -21,8 +22,8 @@ namespace TakeSword
         {
             return $"{Actor.DisplayName(viewer)} {RelativeName(viewer)}.";
         }
-        public long OnsetTime { get; set; } = 750;
-        public long CooldownTime { get; set; } = 250;
+        public virtual long OnsetTime { get; set; } = 750;
+        public virtual long CooldownTime { get; set; } = 250;
         public PhysicalActor Actor { get; set; }
         protected ActionOutcome Succeed()
         {
@@ -85,8 +86,10 @@ namespace TakeSword
                     return outcome;
                 }
             }
+            Actor.SuspendMessages();
             outcome = Execute();
             Announce(outcome);
+            Actor.ResumeMessages();
             return outcome;
 
         }
@@ -94,8 +97,15 @@ namespace TakeSword
         {
             yield return (TargetType.Actor, Actor);
         }
-        public abstract ActionOutcome IsValid();
-        protected abstract ActionOutcome Execute();
+        protected abstract ActionOutcome Run(bool execute=true);
+        public ActionOutcome IsValid()
+        {
+            return Run(execute: false);
+        }
+        protected ActionOutcome Execute()
+        {
+            return Run();
+        }
 
     }
 }

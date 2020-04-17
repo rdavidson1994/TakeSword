@@ -16,7 +16,7 @@ namespace TakeSword
             Outcome = outcome;
             Relationship = relationship;
         }
-        public bool Is<T>(out T typedContent, TargetType relationship, bool successful=true) where T : class
+        public bool IsSuccessful<T>(out T typedContent, TargetType relationship, bool successful=true) where T : class
         {
 
             if (Relationship != relationship || Content == null || Outcome != successful)

@@ -14,10 +14,5 @@ namespace TakeSword
             yield return (TargetType.Target, Target);
         }
         public GameObject Target { get; set; }
-
-        public override ActionOutcome IsValid()
-        {
-            return CanReach(Target);
-        }
     }
 }

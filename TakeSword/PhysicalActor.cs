@@ -4,9 +4,42 @@ using System.Linq;
 
 namespace TakeSword
 {
+    public interface IBody
+    {
+        bool Alive { get; }
+        bool NeedsUpdate { get; }
+        void TakeDamage(int amount, DamageType damageType, BodyPartKind bodyPart);
+        void Update(int deltaTime);
+    }
+
+    public class BasicBody : IBody
+    {
+        private int HP = 100;
+        public bool Alive => HP > 0;
+
+        public bool NeedsUpdate => false;
+
+        public void TakeDamage(int amount, DamageType damageType, BodyPartKind bodyPart)
+        {
+            HP -= amount;
+        }
+
+        public void Update(int deltaTime)
+        {
+            // Do nothing
+        }
+    }
     public class PhysicalActor : GameObject, IActor<PhysicalActor>
     {
-        public PhysicalActor(ILocation location = null, FrozenTraitStore traits = null) : base(location, traits) { }
+        const int BODY_UPDATE_DELTA_TIME = 1000;
+        bool updatingBody  = false;
+        public PhysicalActor(IBody body, ILocation location = null, FrozenTraitStore traits = null)
+            : base(location, traits)
+        {
+            this.body = body;
+        }
+        private IBody body;
+        public bool Alive { get; set; } = true;
         protected IEvent ScheduledEvent { get; set; }
         public IRoutine<PhysicalActor> AI { get; set; }
         protected Dictionary<SkillType, double> skillValues;
@@ -22,6 +55,46 @@ namespace TakeSword
             Schedule.Add(actionEvent, action.OnsetTime);
         }
 
+        private void UpdateBody()
+        {
+            body.Update(BODY_UPDATE_DELTA_TIME);
+            if (body.NeedsUpdate)
+            {
+                Schedule.Add(new CallbackEvent(UpdateBody), BODY_UPDATE_DELTA_TIME);
+            }
+            else
+            {
+                updatingBody = false;
+            }
+        }
+
+        private class BodyUpdateEvent : IEvent
+        {
+            private PhysicalActor actor;
+            public BodyUpdateEvent(PhysicalActor actor)
+            {
+                this.actor = actor;
+            }
+            public void Happen()
+            {
+                actor.UpdateBody();
+            }
+        }
+
+        public override void TakeDamage(int amount, DamageType type, BodyPartKind bodyPart)
+        {
+            body.TakeDamage(amount, type, bodyPart);
+            AI?.RecieveTextMessage($"You take {amount} {type.ToString().ToLowerInvariant()} damage");
+            if (!updatingBody && body.NeedsUpdate) {
+                UpdateBody();
+            }
+            if (!body.Alive)
+            {
+                AI?.RecieveTextMessage($"You have died.");
+                Die();
+            }
+        }
+
         public int MeleeDamage(GameObject weapon)
         {
             double damage = new Random().Next(10, 50);
@@ -34,6 +107,39 @@ namespace TakeSword
                 damage *= stats.Strength;
             }
             return Convert.ToInt32(damage);
+        }
+
+        internal void ResumeMessages()
+        {
+            AI.ResumeMessages();
+        }
+
+        internal void SuspendMessages()
+        {
+            AI.SuspendMessages();
+        }
+
+        public void CreateCorpse()
+        {
+            var corpse = new GameObject(Location);
+            // // Todo: Better name concatenation
+            // corpse.Name = this.Name.PlusSuffix("'s corpse"); // or similar
+            corpse.Name = new SimpleName(Name.GetName(this) + "'s corpse");
+        }
+
+        public void Die()
+        {
+            Alive = false;
+            CreateCorpse();
+            Vanish();
+        }
+
+        internal void ReceiveTextMessage(FormattableString text)
+        {
+            if (AI != null)
+            {
+                AI.RecieveTextMessage(text);
+            }
         }
 
         public bool HasItem(IGameObject item)
@@ -60,6 +166,16 @@ namespace TakeSword
                 contents,
                 Location.NearbyObjects(SightRange)
             ).Where(obj=>obj.HasName(this, name));
+        }
+
+        public void ViewInventory()
+        {
+            AI.ViewInventory();
+        }
+
+        public void ViewLocation(ILocation location)
+        {
+            AI?.ViewLocation(location);
         }
 
         public IEnumerable<GameObject> ItemsInReach()

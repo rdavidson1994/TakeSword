@@ -11,34 +11,36 @@ namespace TakeSword
         string GetInput();
     }
 
-    public class ConsoleUserInterface : IUserInterface
+    public class StationaryEnemyAI : ActivityRoutine<PhysicalActor>
     {
-        public IGameOutputFormatter Formatter { get; }
-
-        public ConsoleUserInterface(IGameOutputFormatter formatter)
+        public StationaryEnemyAI(PhysicalActor actor)
         {
-            Formatter = formatter;
+            Actor = actor;
         }
-        public bool UpdateMap(string mapData)
+        public override IActivity<PhysicalActor> NextActivity()
         {
-            Console.WriteLine(mapData);
-            return true;
-        }
-
-        public bool PrintOutput(FormattableString output)
-        {
-            string plainTextOutput = Formatter.FormatString(output);
-            Console.WriteLine(plainTextOutput);
-            return true;
-        }
-        public string GetInput()
-        {
-            return Console.ReadLine();
+            foreach (GameObject thing in Actor.ItemsInReach())
+            {
+                if (thing.Is<Player>())
+                {
+                    return new WeaponStrike
+                    {
+                        Actor = Actor,
+                        Target = thing,
+                        Tool = Actor
+                    };
+                }
+            }
+            return new WaitAction
+            {
+                Actor = Actor
+            };
         }
     }
 
     public class PlayerCharacterAI : ActivityRoutine<PhysicalActor>, IVerbalAI<PhysicalActor>
     {
+        private List<FormattableString> messageQueue = new List<FormattableString>();
         private IUserInterface userInterface;
         private string storedInput;
         private List<Verb> verbs = new List<Verb>();
@@ -48,20 +50,99 @@ namespace TakeSword
             this.userInterface = userInterface;
         }
 
+        public override void ViewInventory()
+        {
+            userInterface.PrintOutput($"Inventory:");
+            bool anything = false;
+            foreach (GameObject item in Actor.NearbyObjects(Actor.Reach))
+            {
+                anything = true;
+                userInterface.PrintOutput(item.ShortDescription(Actor));
+            }
+            if (!anything)
+            {
+                userInterface.PrintOutput($"You have no possessions");
+            }
+        }
+
+        public override void ViewLocation(ILocation location)
+        {
+            userInterface.PrintOutput(location.DescriptionForInhabitant(Actor));
+            userInterface.PrintOutput($"Nearby items:");
+            foreach (GameObject item in location.NearbyObjects(Actor.SightRange))
+            {
+                userInterface.PrintOutput(item.ShortDescription(Actor));
+            }
+        }
+        public override void RecieveTextMessage(FormattableString text)
+        {
+            // Save for later, when next we ask the user for input.
+            // This way you see "You hit the orc. The orc dies." and not the other way around.
+            if (messagesSuspended)
+            {
+                messageQueue.Add(text);
+            }
+            else
+            {
+                userInterface.PrintOutput(text);
+            }
+        }
+
+        private bool messagesSuspended;
+
+        public override void ResumeMessages()
+        {
+            messagesSuspended = false;
+            PrintMessages();
+        }
+
+        public override void SuspendMessages()
+        {
+            messagesSuspended = true;
+        }
+
         public override void ReactToAnnouncement(ActionAnnouncement announcement)
         {
-            if (announcement.Is(out PhysicalAction physicalAction, TargetType.Bystander))
+            // This method prints output IMMEDIATELY, rather than adding to the message queue.
+            // This way you see "You hit the orc. The orc dies." and not the other way around.
+            base.ReactToAnnouncement(announcement);
+            if (announcement.IsSuccessful(out PhysicalAction physicalAction, TargetType.Witness))
             {
-                userInterface.PrintOutput(physicalAction.AnnouncementText(Actor));
+                if (physicalAction.Quiet && physicalAction.Actor == this.Actor)
+                {
+                    // Do nothing - we don't need to know about our own insignificant actions.
+                }
+                else
+                {
+                    userInterface.PrintOutput(physicalAction.AnnouncementText(Actor));
+                }
             }
-            if (announcement.Is(out PhysicalAction failedPhysicalAction, TargetType.Bystander, successful: false))
+            if (
+                announcement.Relationship == TargetType.Actor
+                && announcement.Outcome is FailedOutcome failure
+            )
             {
-                //userInterface.PrintOutput();
+                userInterface.PrintOutput(failure.Reason);
             }
         }
         public void AddVerbs(params Verb[] verbs)
         {
             this.verbs.AddRange(verbs);
+        }
+
+        private string GetUserInput()
+        {
+            PrintMessages();
+            return userInterface.GetInput();
+        }
+
+        private void PrintMessages()
+        {
+            foreach (FormattableString message in messageQueue)
+            {
+                userInterface.PrintOutput(message);
+            }
+            messageQueue.Clear();
         }
 
         public override IActivity<PhysicalActor> NextActivity()
@@ -76,7 +157,7 @@ namespace TakeSword
                 }
                 else
                 {
-                    input = userInterface.GetInput();
+                    input = GetUserInput();
                 }
 
                 FailedOutcome backupOutcome = null;
@@ -120,11 +201,11 @@ namespace TakeSword
                 char letter = 'a';
                 foreach (GameObject candidate in candidates)
                 {
-                    Console.WriteLine($"{letter}.) {candidate.GetName(Actor)}");
+                    userInterface.PrintOutput($"{letter}.) {candidate.GetName(Actor)}");
                     letter++;
                 }
                 //letter now holds the highest valid response
-                name = userInterface.GetInput();
+                name = GetUserInput();
                 if (name.Length == 1)
                 {
                     char letterChoice = char.ToUpper(name[0]);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TakeSword
 {
@@ -31,6 +32,11 @@ namespace TakeSword
         public bool BeExited(GameObject gameObject)
         {
             return true;
+        }
+
+        public FormattableString DescriptionForInhabitant(GameObject viewer)
+        {
+            return $"If you're seeing this text, it means your character got unloaded from the game somehow. :( Sorry!";
         }
 
         public void HandleAnnouncement(ActionAnnouncement announcement)

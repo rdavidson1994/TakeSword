@@ -82,6 +82,31 @@ namespace TakeSwordTests
             {
                 throw new NotImplementedException();
             }
+
+            public void ViewLocation(ILocation location)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void ViewInventory()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void RecieveTextMessage(FormattableString text)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void ResumeMessages()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SuspendMessages()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

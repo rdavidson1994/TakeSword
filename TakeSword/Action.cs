@@ -7,7 +7,7 @@ namespace TakeSword
         Actor,
         Target,
         Tool,
-        Bystander,
+        Witness,
         Scene,
     }
 
@@ -19,16 +19,22 @@ namespace TakeSword
                 return Fail($"You already have {NameOf(Target)}");
             return Succeed();
         }
-        public override ActionOutcome IsValid()
-        {
-            if (!Target.Is<InventoryItem>())
-                return Fail($"You can only take reasonably sized inanimate objects.");
-            return DoesNotHave(Target) && CanReach(Target);
-        }
 
-        protected override ActionOutcome Execute()
+        protected override ActionOutcome Run(bool execute)
         {
-            Target.Move(Actor);
+            ActionOutcome prereqs =
+                Target.Is<InventoryItem>($"You can only take reasonably sized inanimate objects.")
+                && CanReach(Target)
+                && DoesNotHave(Target);
+            if (!prereqs)
+            {
+                return prereqs;
+            }
+
+            if (execute)
+            {
+                Target.Move(Actor);
+            }
             return Succeed();
         }
 
@@ -38,18 +44,43 @@ namespace TakeSword
     public class Drop : TargetedAction
     {
         protected override string Name => "drop";
-        public override ActionOutcome IsValid()
+        protected override ActionOutcome Run(bool execute)
         {
             if (!Actor.HasItem(Target))
             {
                 return Fail($"You don't have {NameOf(Target)}");
             }
+            if (execute)
+            {
+                Target.Move(Actor.Location);
+            }
             return Succeed();
         }
+    }
 
-        protected override ActionOutcome Execute()
+    public enum BodyPartKind
+    {
+        Any,
+        LeftArm,
+        LeftLeg,
+        RightArm,
+        RightLeg,
+        Torso,
+        Head
+    }
+
+    public class UnarmedStrike : TargetedAction
+    {
+        protected override string Name => "hit";
+
+        protected override ActionOutcome Run(bool execute = true)
         {
-            Target.Move(Actor.Location);
+            var prereqs = CanReach(Target);
+            if (!prereqs) return prereqs;
+            if (execute)
+            {
+                Target.TakeDamage(Actor.MeleeDamage(Actor), DamageType.Blunt, BodyPartKind.Any);
+            }
             return Succeed();
         }
     }
@@ -57,56 +88,72 @@ namespace TakeSword
     public class WeaponStrike : ToolAction
     {
         protected override string Name => "hit";
-        public override ActionOutcome IsValid()
+
+        protected override ActionOutcome Run(bool execute)
         {
-            return CanReach(Target) && Has(Tool);
-        }
-
-        protected override ActionOutcome Execute()
-        {
-
-
+            ActionOutcome prereqs = CanReach(Target) && Has(Tool);
+            if (!prereqs) return prereqs;
+            if (execute)
+            {
+                DamageType type = DamageType.Blunt;
+                if (Tool.Is(out Weapon weapon))
+                {
+                    type = weapon.DamageType;
+                }
+                Target.TakeDamage(Actor.MeleeDamage(Tool), type, BodyPartKind.Any);
+            }
             return Succeed();
+        }
+    }
+
+    public class DisplayInventory : DisplayAction
+    {
+        protected override string Name => "examine your possessions";
+
+        protected override void Display()
+        {
+            Actor.ViewInventory();
+        }
+    }
+
+    public class Look : DisplayAction
+    {
+        protected override string Name => "look";
+
+        protected override void Display()
+        {
+            Actor.ViewLocation(Actor.Location);
         }
     }
 
     public class WaitAction : PhysicalAction
     {
-        public override ActionOutcome IsValid()
-        {
-            return Succeed();
-        }
-
-        protected override ActionOutcome Execute()
-        {
-            return Succeed();
-        }
 
         protected override string Name => "wait";
+
+        protected override ActionOutcome Run(bool execute)
+        {
+            return Succeed();
+        }
     }
 
     public class Eat : TargetedAction
     {
         protected override string Name => "eat";
-
-        public override ActionOutcome IsValid()
+        protected override ActionOutcome Run(bool execute)
         {
-            if (Target.Is(out Food _))
-            {
-                return Has(Target);
-            }
-            return Fail($"{Target} is not edible.");
-        }
+            ActionOutcome prereqs =
+                Target.Is(out Food food, $"{Target} isn't edible.")
+                && Has(Target);
 
-        protected override ActionOutcome Execute()
-        {
-            if (Target.Is(out Food food))
+            if (!prereqs) return prereqs;
+
+            if (execute)
             {
                 Target.Vanish();
-                Console.WriteLine($"Yum! +{food.Nutrition} nutrition.");
-                return Succeed();
+                Actor.ReceiveTextMessage($"Yum! +{food.Nutrition} nutrition.");
             }
-            return Fail($"Not edible");
+            return Succeed();
         }
     }
 
@@ -140,28 +187,5 @@ namespace TakeSword
         {
             return staticFailedOutcome;
         }
-    }
-
-    public class Enter : TargetedAction
-    {
-        private Portal targetAsPortal;
-        public override ActionOutcome IsValid()
-        {
-            ActionOutcome base_ = base.IsValid();
-            if (!base_) return base_;
-            if (Target is Portal portal)
-            {
-                targetAsPortal = portal;
-                return Succeed();
-            }
-            return Fail($"{Target} is not a portal.");
-        }
-        protected override ActionOutcome Execute()
-        {
-            Actor.Move(targetAsPortal.Opposite.Location);
-            return Succeed();
-        }
-
-        protected override string Name => "enter";
     }
 }

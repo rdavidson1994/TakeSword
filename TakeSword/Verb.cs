@@ -27,7 +27,7 @@ namespace TakeSword
         protected abstract IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup);
     }
 
-    public class SimpleVerb<ActionType> : Verb where ActionType : IActivity<PhysicalActor>, new()
+    public class SimpleVerb<TAction> : Verb where TAction : IActivity<PhysicalActor>, new()
     {
         public SimpleVerb(params string[] synonyms) : base("VERB", synonyms)
         {
@@ -35,11 +35,11 @@ namespace TakeSword
 
         protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
-            return new ActionType { Actor = ai.Actor };
+            return new TAction { Actor = ai.Actor };
         }
     }
 
-    public class TargetVerb<ActionType> : Verb where ActionType: ITargetedActivity, new()
+    public class TargetVerb<TAction> : Verb where TAction: ITargetedActivity, new()
     {
         public TargetVerb(params string[] synonyms) : base("VERB TARGET", synonyms) { }
 
@@ -53,18 +53,18 @@ namespace TakeSword
                     new FailedOutcome($"There is no {lookup["TARGET"]} here")
                 );
             }
-            List<ActionType> activities = null;
-            List<ActionType> validActivities = null;
+            List<TAction> activities = null;
+            List<TAction> validActivities = null;
             while (validActivities == null || validActivities.Count > 1)
             {
-                IEnumerable<ActionType> query =
+                IEnumerable<TAction> query =
                     from target in targets
-                    select new ActionType
+                    select new TAction
                     {
                         Actor = ai.Actor,
                         Target = target,
                     };
-                activities = new List<ActionType>(query);
+                activities = new List<TAction>(query);
                 validActivities = activities.Where(x => x.IsValid()).ToList();
                 IEnumerable<GameObject> validTargets = from act in validActivities select act.Target;
                 var uniqueTargets = new HashSet<GameObject>(validTargets);
@@ -91,7 +91,7 @@ namespace TakeSword
 
     }
 
-    public class ToolVerb<ActionType> : Verb where ActionType: IToolActivity, new()
+    public class ToolVerb<TAction> : Verb where TAction: IToolActivity, new()
     {
         public ToolVerb(params string[] synonyms) : base("VERB TARGET with TOOL", synonyms) { }
 
@@ -110,20 +110,20 @@ namespace TakeSword
                     ai.Actor,
                     new FailedOutcome($"There is no {lookup["TOOL"]} here.")
                 );
-            List<ActionType> activities = null;
-            List<ActionType> validActivities = null;
+            List<TAction> activities = null;
+            List<TAction> validActivities = null;
             while (validActivities == null || validActivities.Count > 1)
             {
-                IEnumerable<ActionType> query =
+                IEnumerable<TAction> query =
                     from target in targets
                     from tool in tools
-                    select new ActionType
+                    select new TAction
                     {
                         Actor = ai.Actor,
                         Target = target,
                         Tool = tool,
                     };
-                activities = new List<ActionType>(query);
+                activities = new List<TAction>(query);
                 validActivities = activities.Where(x => x.IsValid()).ToList();
                 IEnumerable<GameObject> validTargets = from act in validActivities select act.Target;
                 var uniqueTargets = new HashSet<GameObject>(validTargets);

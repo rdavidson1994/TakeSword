@@ -65,6 +65,8 @@ namespace TakeSword
         public int Weight { get; }
     }
 
+    public class Player : Trait { }
+
     public class Food : Trait
     {
         public Food(int nutrition)

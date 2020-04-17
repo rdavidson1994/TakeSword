@@ -47,6 +47,11 @@ namespace TakeSwordTests
             return true;
         }
 
+        public FormattableString DescriptionForInhabitant(GameObject viewer)
+        {
+            throw new NotImplementedException();
+        }
+
         public void HandleAnnouncement(ActionAnnouncement announcement)
         {
             throw new NotImplementedException();
