@@ -189,7 +189,7 @@ namespace TakeSword
         }
     }
 
-    public class ActOnAll<ActionType> : GeneratorRoutine<PhysicalActor> where ActionType : ITargetedActivity, new()
+    public class ActOnAll<ActionType> : GeneratorRoutine<PhysicalActor> where ActionType : ITargetedActivity<PhysicalActor>, new()
     {
         //public override PhysicalActor Actor { get; set; }
 

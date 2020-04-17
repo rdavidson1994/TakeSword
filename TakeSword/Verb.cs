@@ -39,7 +39,7 @@ namespace TakeSword
         }
     }
 
-    public class TargetVerb<TAction> : Verb where TAction: ITargetedActivity, new()
+    public class TargetVerb<TAction> : Verb where TAction: ITargetedActivity<PhysicalActor>, new()
     {
         public TargetVerb(params string[] synonyms) : base("VERB TARGET", synonyms) { }
 
@@ -91,7 +91,7 @@ namespace TakeSword
 
     }
 
-    public class ToolVerb<TAction> : Verb where TAction: IToolActivity, new()
+    public class ToolVerb<TAction> : Verb where TAction: IToolActivity<PhysicalActor>, new()
     {
         public ToolVerb(params string[] synonyms) : base("VERB TARGET with TOOL", synonyms) { }
 

@@ -1,6 +1,6 @@
 ﻿namespace TakeSword
 {
-    public interface ITargetedActivity : IActivity<PhysicalActor>
+    public interface ITargetedActivity<TActor> : IActivity<TActor>
     {
         GameObject Target { get; set; }
     }

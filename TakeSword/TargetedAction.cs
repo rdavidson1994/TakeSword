@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 namespace TakeSword
 {
-    public abstract class TargetedAction : PhysicalAction, ITargetedActivity
+    public abstract class TargetedAction : PhysicalAction, ITargetedActivity<PhysicalActor>
     {
         public override FormattableString AnnouncementText(IGameObject viewer)
         {

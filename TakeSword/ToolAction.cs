@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 namespace TakeSword
 {
-    public abstract class ToolAction : PhysicalAction, IToolActivity
+    public abstract class ToolAction : PhysicalAction, IToolActivity<PhysicalActor>
     {
         public GameObject Tool { get; set; }
         public GameObject Target { get; set; }
