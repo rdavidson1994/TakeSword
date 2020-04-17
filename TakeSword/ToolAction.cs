@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 namespace TakeSword
 {
-    public abstract class ToolAction : TargetedAction, IToolActivity
+    public abstract class ToolAction : PhysicalAction, IToolActivity
     {
         public GameObject Tool { get; set; }
+        public GameObject Target { get; set; }
+
         public override FormattableString AnnouncementText(IGameObject viewer)
         {
             return $"{Actor.DisplayName(viewer)} {RelativeName(viewer)} {Target.DisplayName(viewer)} with {Tool.DisplayName(viewer)}.";

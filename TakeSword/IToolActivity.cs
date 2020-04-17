@@ -1,7 +1,8 @@
 ﻿namespace TakeSword
 {
-    public interface IToolActivity : ITargetedActivity
+    public interface IToolActivity : IActivity<PhysicalActor>
     {
+        GameObject Target { get; set; }
         GameObject Tool { get; set; }
     }
 }

@@ -12,6 +12,7 @@ namespace TakeSword
         public TActor Actor { get; set; }
 
         public abstract IActivity<TActor> NextActivity();
+
         public IAction<TActor> NextAction()
         {
             if (StoredAction != null)
