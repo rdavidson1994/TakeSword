@@ -10,6 +10,33 @@ namespace TakeSword
         private IRoutine<TActor> Routine { get; set; }
         protected IAction<TActor> StoredAction { get; private set; }
         public TActor Actor { get; set; }
+        // Convenience "Do" functions, to make returning new actions less error-prone
+        protected T Do<T>() where T : ISimpleActivity<TActor>, new()
+        {
+            return new T
+            {
+                Actor = Actor,
+            };
+        }
+
+        protected T Do<T>(GameObject target) where T : ITargetedActivity<TActor>, new()
+        {
+            return new T
+            {
+                Actor = Actor,
+                Target = target
+            };
+        }
+
+        protected T Do<T>(GameObject target, GameObject tool) where T : IToolActivity<TActor>, new()
+        {
+            return new T
+            {
+                Actor = Actor,
+                Target = target,
+                Tool = tool
+            };
+        }
 
         public abstract IActivity<TActor> NextActivity();
 
@@ -158,12 +185,6 @@ namespace TakeSword
 
 
 
-    //public abstract class ActivityRoutine<PhysicalActor> : ActivityRoutine, IActivity<PhysicalActor>
-    //{
-    //    public PhysicalActor Actor { get; set; }
-
-    //    public override IActor Actor => Actor;
-    //}
 
     public abstract class GeneratorRoutine<TActor> : ActivityRoutine<TActor>
     {
@@ -189,7 +210,8 @@ namespace TakeSword
         }
     }
 
-    public class ActOnAll<ActionType> : GeneratorRoutine<PhysicalActor> where ActionType : ITargetedActivity<PhysicalActor>, new()
+    public class ActOnAll<ActionType> : GeneratorRoutine<PhysicalActor>, ISimpleActivity<PhysicalActor>
+        where ActionType : ITargetedActivity<PhysicalActor>, new()
     {
         //public override PhysicalActor Actor { get; set; }
 
@@ -227,11 +249,7 @@ namespace TakeSword
                 EmptyReason = $"There is no portal facing {Direction}";
                 return null;
             }
-            return new Enter
-            {
-                Actor = Actor,
-                Target = portals.FirstOrDefault()
-            };
+            return Do<Enter>(portals.FirstOrDefault());
         }
     }
 }

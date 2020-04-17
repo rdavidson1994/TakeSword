@@ -27,7 +27,7 @@ namespace TakeSword
         protected abstract IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup);
     }
 
-    public class SimpleVerb<TAction> : Verb where TAction : IActivity<PhysicalActor>, new()
+    public class SimpleVerb<TAction> : Verb where TAction : ISimpleActivity<PhysicalActor>, new()
     {
         public SimpleVerb(params string[] synonyms) : base("VERB", synonyms)
         {

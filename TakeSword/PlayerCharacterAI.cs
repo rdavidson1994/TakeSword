@@ -23,18 +23,10 @@ namespace TakeSword
             {
                 if (thing.Is<Player>())
                 {
-                    return new WeaponStrike
-                    {
-                        Actor = Actor,
-                        Target = thing,
-                        Tool = Actor
-                    };
+                    return Do<UnarmedStrike>(thing);
                 }
             }
-            return new WaitAction
-            {
-                Actor = Actor
-            };
+            return Do<WaitAction>();
         }
     }
 

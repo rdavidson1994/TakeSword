@@ -6,4 +6,9 @@
         IRoutine<TActor> AsRoutine();
         ActionOutcome IsValid();
     }
+
+    public interface ISimpleActivity<TActor> : IActivity<TActor>
+    {
+        // Marker interface - indicating that no targets are required for valid new() usage
+    }
 }

@@ -108,4 +108,6 @@ namespace TakeSword
         }
 
     }
+
+    public abstract class SimpleAction : PhysicalAction, ISimpleAction<PhysicalActor> { }
 }

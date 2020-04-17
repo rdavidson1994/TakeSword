@@ -126,7 +126,7 @@ namespace TakeSword
         }
     }
 
-    public class WaitAction : PhysicalAction
+    public class WaitAction : SimpleAction
     {
 
         protected override string Name => "wait";
