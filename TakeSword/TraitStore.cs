@@ -78,6 +78,7 @@ namespace TakeSword
             foreach (Type type in iterationOrder)
             {
                 copy.data.Add(type, data[type].Copy());
+                copy.iterationOrder.Add(type);
             }
             return copy;
         }

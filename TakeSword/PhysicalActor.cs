@@ -130,11 +130,12 @@ namespace TakeSword
         public void Die()
         {
             Alive = false;
+            Location.HandleTextMessage($"{this} has died.");
             CreateCorpse();
             Vanish();
         }
 
-        internal void ReceiveTextMessage(FormattableString text)
+        public override void ReceiveTextMessage(FormattableString text)
         {
             if (AI != null)
             {

@@ -86,10 +86,10 @@ namespace TakeSword
                     return outcome;
                 }
             }
-            Actor.SuspendMessages();
+            //Actor.SuspendMessages();
             outcome = Execute();
             Announce(outcome);
-            Actor.ResumeMessages();
+            //Actor.ResumeMessages();
             return outcome;
 
         }

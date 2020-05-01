@@ -80,7 +80,7 @@ namespace TakeSword
             }
         }
 
-        private bool messagesSuspended;
+        private bool messagesSuspended = true;
 
         public override void ResumeMessages()
         {

@@ -11,5 +11,6 @@ namespace TakeSword
         void HandleAnnouncement(ActionAnnouncement announcement);
         IEnumerable<GameObject> NearbyObjects(long range);
         ISchedule Schedule { get; }
+        void HandleTextMessage(FormattableString message);
     }
 }

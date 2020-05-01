@@ -44,6 +44,11 @@ namespace TakeSword
             // do nothing
         }
 
+        public void HandleTextMessage(FormattableString message)
+        {
+            
+        }
+
         public IEnumerable<GameObject> NearbyObjects(long range)
         {
             return new List<GameObject>();

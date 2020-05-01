@@ -26,7 +26,7 @@ namespace TakeSword
             }
         }
         public ISchedule Schedule { get; protected set; }
-        public GameObject(ILocation location=null, FrozenTraitStore traits=null)
+        public GameObject(ILocation location = null, FrozenTraitStore traits = null)
         {
             if (location == null)
                 location = new OffscreenLocation();
@@ -65,7 +65,7 @@ namespace TakeSword
             return Is(out TraitType _);
         }
 
-        public TraitType As<TraitType>() where TraitType: Trait
+        public TraitType As<TraitType>() where TraitType : Trait
         {
             return traits.Get<TraitType>();
         }
@@ -77,7 +77,8 @@ namespace TakeSword
 
         public ActionOutcome Is<TraitType>(out TraitType trait, FormattableString reason) where TraitType : Trait
         {
-            if (Is(out trait)) {
+            if (Is(out trait))
+            {
                 return new SuccessfulOutcome();
             }
             else
@@ -179,18 +180,6 @@ namespace TakeSword
 
         protected virtual void ReactToAnnouncement(ActionAnnouncement announcement) { }
 
-        public void HandleAnnouncement(ActionAnnouncement announcement)
-        {
-            ReactToAnnouncement(announcement);
-            // Maybe we should only do this if announcement.relationship == TargetType.Scene?
-            var bystanderAnnouncement = new ActionAnnouncement(
-                content: announcement.Content,
-                outcome: announcement.Outcome,
-                relationship: TargetType.Witness
-            );
-            BroadcastAnnouncement(bystanderAnnouncement);
-        }
-
         public IEnumerable<GameObject> NearbyObjects(long range)
         {
             return contents;
@@ -205,5 +194,30 @@ namespace TakeSword
         {
             return $"You are inside {this}";
         }
+
+        public void HandleAnnouncement(ActionAnnouncement announcement)
+        {
+            ReactToAnnouncement(announcement);
+            if (announcement.Relationship == TargetType.Scene)
+            {
+                var bystanderAnnouncement = new ActionAnnouncement(
+                    content: announcement.Content,
+                    outcome: announcement.Outcome,
+                    relationship: TargetType.Witness
+                );
+                BroadcastAnnouncement(bystanderAnnouncement);
+            }
+        }
+
+        public void HandleTextMessage(FormattableString message)
+        {
+            ReceiveTextMessage(message);
+            foreach (GameObject innerObject in Contents)
+            {
+                innerObject.ReceiveTextMessage(message);
+            }
+        }
+
+        public virtual void ReceiveTextMessage(FormattableString message) { }
     }
 }
