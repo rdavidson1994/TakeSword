@@ -71,7 +71,14 @@ namespace TakeSword
                 if (uniqueTargets.Count > 1)
                 {
                     GameObject definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
-                    targets = new List<GameObject>() { definiteTarget };
+                    if (definiteTarget == null)
+                    {
+                        targets = new List<GameObject>(); // empty
+                    }
+                    else
+                    {
+                        targets = new List<GameObject>() { definiteTarget };
+                    }
                 }
             }
             if (activities.Count == 0)
@@ -130,16 +137,30 @@ namespace TakeSword
                 if (uniqueTargets.Count > 1)
                 {
                     GameObject definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
-                    targets = new List<GameObject>() { definiteTarget };
+                    if (definiteTarget == null)
+                    {
+                        targets = new List<GameObject>(); // empty
+                    }
+                    else
+                    {
+                        targets = new List<GameObject>() { definiteTarget };
+                    }
                 }
                 else
                 {
                     IEnumerable<GameObject> validTools = from act in validActivities select act.Tool;
-                    var uniqueTools = new HashSet<GameObject>(validTargets);
+                    var uniqueTools = new HashSet<GameObject>(validTools);
                     if (uniqueTools.Count > 1)
                     {
                         GameObject definiteTool = ai.ChooseObject(lookup["TOOL"], uniqueTools);
-                        tools = new List<GameObject>() { definiteTool };
+                        if (definiteTool == null)
+                        {
+                            tools = new List<GameObject>(); // empty
+                        }
+                        else
+                        {
+                            tools = new List<GameObject>() { definiteTool };
+                        }
                     }
                 }
             }
