@@ -83,10 +83,6 @@ namespace TakeSwordTests
                 throw new NotImplementedException();
             }
 
-            public void ViewLocation(ILocation location)
-            {
-                throw new NotImplementedException();
-            }
 
             public void ViewInventory()
             {

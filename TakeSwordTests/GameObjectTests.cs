@@ -28,6 +28,11 @@ namespace TakeSwordTests
     class TraitStub : Trait {
         public int traitProperty = 0;
     }
+
+    class TraitStub2 : Trait
+    {
+        
+    }
     class LocationSpy : ILocation
     {
         public bool wasEntered;
@@ -83,6 +88,25 @@ namespace TakeSwordTests
             Assert.IsTrue(finish.wasEntered);
             Assert.IsFalse(finish.wasExited);
         }
+
+        [Test]
+        public void AddTraitToMirrorTest()
+        {
+            TraitStub trait1 = new TraitStub();
+            FrozenTraitStore traits = new TraitStore()
+            {
+                trait1
+            }.Freeze();
+            GameObject gameObject = new GameObject(traits: traits);
+            GameObject gameObject2 = new GameObject(traits: traits);
+            TraitStub2 trait2 = new TraitStub2();
+            gameObject2.AddTrait(trait2);
+            Assert.That(gameObject.Is<TraitStub>());
+            Assert.That(!gameObject.Is<TraitStub2>());
+            Assert.That(gameObject2.Is<TraitStub>());
+            Assert.That(gameObject2.Is<TraitStub2>());
+        }
+
         [Test]
         public void AddTraitTest()
         {
