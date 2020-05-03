@@ -5,7 +5,30 @@ using System.Linq;
 
 namespace TakeSword
 {
-    public static class UtilityFunctions
+    public class FormatBuilder
+    {
+        private List<FormattableString> formattableStrings;
+        public FormatBuilder()
+        {
+            formattableStrings = new List<FormattableString>();
+        }
+        public void Add(FormattableString formattableString)
+        {
+            formattableStrings.Add(formattableString);
+        }
+        public void AddLine(FormattableString formattableString)
+        {
+            formattableStrings.Add(formattableString);
+            formattableStrings.Add($"\n");
+        }
+        public FormattableString Build()
+        {
+            IEnumerable<object> allArgs = formattableStrings.SelectMany(f => f.GetArguments());
+            string joinedFormats = string.Join("", formattableStrings.Select(x => x.Format));
+            return FormattableStringFactory.Create(joinedFormats, allArgs.ToArray());
+        }
+    }
+    public class UtilityFunctions
     {
         public static FormattableString FormatConcat(FormattableString first, FormattableString second)
         {

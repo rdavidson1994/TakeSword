@@ -110,9 +110,21 @@ namespace TakeSword
     {
         protected override string Name => "examine your possessions";
 
-        protected override void Display()
+        protected override FormattableString Display()
         {
-            Actor.ViewInventory();
+            var formatBuilder = new FormatBuilder();
+            bool anything = false;
+            formatBuilder.AddLine($"Inventory:");
+            foreach (GameObject item in Actor.NearbyObjects(Actor.Reach))
+            {
+                anything = true;
+                formatBuilder.AddLine(item.ShortDescription(Actor));
+            }
+            if (!anything)
+            {
+                formatBuilder.AddLine($"You have no possessions");
+            }
+            return formatBuilder.Build();
         }
     }
 
@@ -120,15 +132,21 @@ namespace TakeSword
     {
         protected override string Name => "look";
 
-        protected override void Display()
+        protected override FormattableString Display()
         {
-            Actor.ViewLocation(Actor.Location);
+            var formatBuilder = new FormatBuilder();
+            formatBuilder.AddLine(Actor.Location.DescriptionForInhabitant(Actor));
+            formatBuilder.AddLine($"Nearby items:");
+            foreach (GameObject item in Actor.Location.NearbyObjects(Actor.SightRange))
+            {
+                formatBuilder.AddLine(item.ShortDescription(Actor));
+            }
+            return formatBuilder.Build();
         }
     }
 
     public class WaitAction : SimpleAction
     {
-
         protected override string Name => "wait";
 
         protected override ActionOutcome Run(bool execute)

@@ -11,12 +11,12 @@ namespace TakeSword
     public abstract class DisplayAction : InstantAction
     {
         public override bool Quiet => true;
-        protected abstract void Display();
+        protected abstract FormattableString Display();
         protected override ActionOutcome Run(bool execute)
         {
             if (execute)
             {
-                Display();
+                Actor.ReceiveTextMessage(Display());
             }
             return Succeed();
         }

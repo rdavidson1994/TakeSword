@@ -57,6 +57,11 @@ namespace TakeSwordTests
             throw new NotImplementedException();
         }
 
+        public void HandleTextMessage(FormattableString message)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<GameObject> NearbyObjects(long range)
         {
             throw new NotImplementedException();
