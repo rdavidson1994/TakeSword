@@ -169,16 +169,6 @@ namespace TakeSword
             ).Where(obj=>obj.HasName(this, name));
         }
 
-        public void ViewInventory()
-        {
-            AI.ViewInventory();
-        }
-
-        public void ViewLocation(ILocation location)
-        {
-            AI?.ViewLocation(location);
-        }
-
         public IEnumerable<GameObject> ItemsInReach()
         {
             return Enumerable.Concat(

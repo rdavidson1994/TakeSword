@@ -111,16 +111,6 @@ namespace TakeSword
             }
         }
 
-        public virtual void ViewLocation(ILocation location)
-        {
-            // By default, do nothing
-        }
-
-        public virtual void ViewInventory()
-        {
-            // By default, do nothing
-        }
-
         public virtual void RecieveTextMessage(FormattableString text) { }
 
         public virtual void ResumeMessages()

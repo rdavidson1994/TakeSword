@@ -42,30 +42,6 @@ namespace TakeSword
             this.userInterface = userInterface;
         }
 
-        public override void ViewInventory()
-        {
-            userInterface.PrintOutput($"Inventory:");
-            bool anything = false;
-            foreach (GameObject item in Actor.NearbyObjects(Actor.Reach))
-            {
-                anything = true;
-                userInterface.PrintOutput(item.ShortDescription(Actor));
-            }
-            if (!anything)
-            {
-                userInterface.PrintOutput($"You have no possessions");
-            }
-        }
-
-        public override void ViewLocation(ILocation location)
-        {
-            userInterface.PrintOutput(location.DescriptionForInhabitant(Actor));
-            userInterface.PrintOutput($"Nearby items:");
-            foreach (GameObject item in location.NearbyObjects(Actor.SightRange))
-            {
-                userInterface.PrintOutput(item.ShortDescription(Actor));
-            }
-        }
         public override void RecieveTextMessage(FormattableString text)
         {
             // Save for later, when next we ask the user for input.
