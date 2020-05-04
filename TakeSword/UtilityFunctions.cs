@@ -18,8 +18,11 @@ namespace TakeSword
         }
         public void AddLine(FormattableString formattableString)
         {
+            if (formattableStrings.Count != 0)
+            {
+                formattableStrings.Add($"\n");
+            }
             formattableStrings.Add(formattableString);
-            formattableStrings.Add($"\n");
         }
         public FormattableString Build()
         {
