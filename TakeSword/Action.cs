@@ -91,7 +91,7 @@ namespace TakeSword
 
         protected override ActionOutcome Run(bool execute)
         {
-            ActionOutcome prereqs = CanReach(Target) && Has(Tool);
+            ActionOutcome prereqs = Has(Tool) && CanReach(Target);
             if (!prereqs) return prereqs;
             if (execute)
             {

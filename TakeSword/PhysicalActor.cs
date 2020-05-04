@@ -114,7 +114,7 @@ namespace TakeSword
             var corpse = new GameObject(Location);
             // // Todo: Better name concatenation
             // corpse.Name = this.Name.PlusSuffix("'s corpse"); // or similar
-            corpse.Name = new SimpleName(Name.GetName(this) + "'s corpse");
+            corpse.Name = this.Name.Possessive("corpse");
         }
 
         public void Die()
