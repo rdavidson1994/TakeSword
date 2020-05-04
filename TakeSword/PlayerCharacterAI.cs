@@ -58,17 +58,6 @@ namespace TakeSword
 
         private bool messagesSuspended = true;
 
-        public override void ResumeMessages()
-        {
-            messagesSuspended = false;
-            PrintMessages();
-        }
-
-        public override void SuspendMessages()
-        {
-            messagesSuspended = true;
-        }
-
         public override void ReactToAnnouncement(ActionAnnouncement announcement)
         {
             // This method prints output IMMEDIATELY, rather than adding to the message queue.

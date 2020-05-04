@@ -8,7 +8,5 @@ namespace TakeSword
         IAction<TActor> NextAction();
         void ReactToAnnouncement(ActionAnnouncement announcement);
         void RecieveTextMessage(FormattableString text);
-        void ResumeMessages();
-        void SuspendMessages();
     }
 }

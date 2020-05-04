@@ -96,7 +96,8 @@ namespace TakeSwordTests
             FrozenTraitStore traits = new TraitStore()
             {
                 trait1
-            }.Freeze();
+            }
+            .Freeze();
             GameObject gameObject = new GameObject(traits: traits);
             GameObject gameObject2 = new GameObject(traits: traits);
             TraitStub2 trait2 = new TraitStub2();

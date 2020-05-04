@@ -94,15 +94,6 @@ namespace TakeSwordTests
                 throw new NotImplementedException();
             }
 
-            public void ResumeMessages()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void SuspendMessages()
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

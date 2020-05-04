@@ -113,15 +113,6 @@ namespace TakeSword
 
         public virtual void RecieveTextMessage(FormattableString text) { }
 
-        public virtual void ResumeMessages()
-        {
-
-        }
-
-        public virtual void SuspendMessages()
-        {
-
-        }
     }
 
     public abstract class SingleActivity<TActor> : ActivityRoutine<TActor>

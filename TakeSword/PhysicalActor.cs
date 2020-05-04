@@ -109,16 +109,6 @@ namespace TakeSword
             return Convert.ToInt32(damage);
         }
 
-        internal void ResumeMessages()
-        {
-            AI.ResumeMessages();
-        }
-
-        internal void SuspendMessages()
-        {
-            AI.SuspendMessages();
-        }
-
         public void CreateCorpse()
         {
             var corpse = new GameObject(Location);
