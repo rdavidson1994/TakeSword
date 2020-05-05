@@ -50,6 +50,7 @@ namespace TakeSwordTests
                 throw new NotImplementedException();
             }
         }
+
         private class FakeRoutine : IRoutine<FakeActor>
         {
             public FakeActor Actor { get; set; }
@@ -94,6 +95,10 @@ namespace TakeSwordTests
                 throw new NotImplementedException();
             }
 
+            public void Die()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

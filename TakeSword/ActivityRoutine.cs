@@ -27,7 +27,7 @@ namespace TakeSword
                 Target = target
             };
         }
-
+        
         protected T Do<T>(GameObject target, GameObject tool) where T : IToolActivity<TActor>, new()
         {
             return new T
@@ -113,6 +113,7 @@ namespace TakeSword
 
         public virtual void RecieveTextMessage(FormattableString text) { }
 
+        public virtual void Die() { }
     }
 
     public abstract class SingleActivity<TActor> : ActivityRoutine<TActor>

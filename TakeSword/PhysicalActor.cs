@@ -90,7 +90,7 @@ namespace TakeSword
             }
             if (!body.Alive)
             {
-                AI?.RecieveTextMessage($"You have died.");
+                AI?.Die();
                 Die();
             }
         }

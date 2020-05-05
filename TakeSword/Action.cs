@@ -85,6 +85,36 @@ namespace TakeSword
         }
     }
 
+    public class BestWeaponStrike : SingleActivity<PhysicalActor>, ITargetedActivity<PhysicalActor>
+    {
+        public GameObject Target { get; set; }
+
+        public override IActivity<PhysicalActor> GetActivity()
+        {
+            GameObject bestWeapon = null;
+            double bestMultiplier = 1.0;
+            foreach (GameObject item in Actor.Contents)
+            {
+                if (item.Is(out Weapon weapon))
+                {
+                    if (weapon.DamageMultiplier > bestMultiplier)
+                    {
+                        bestWeapon = item;
+                        bestMultiplier = weapon.DamageMultiplier;
+                    }
+                }
+            }
+            if (bestWeapon is null)
+            {
+                return Do<UnarmedStrike>(Target);
+            }
+            else
+            {
+                return Do<WeaponStrike>(Target, bestWeapon);
+            }
+        }
+    }
+
     public class WeaponStrike : ToolAction
     {
         protected override string Name => "hit";

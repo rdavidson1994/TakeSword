@@ -103,10 +103,11 @@ namespace TakeSword
                 new SimpleVerb<ActOnAll<Drop>>("drop all"),
                 new TargetVerb<Drop>("put down", "drop"),
                 new ToolVerb<WeaponStrike>("hit", "attack", "strike"),
-                new TargetVerb<UnarmedStrike>("hit", "attack", "strike"),
+                new TargetVerb<UnarmedStrike>("punch", "kick"),
+                new TargetVerb<BestWeaponStrike>("hit", "attack", "strike"),
                 new SimpleVerb<WaitAction>("wait", "delay"),
                 new TargetVerb<Enter>("enter"),
-                new DirectionVerb<GoDirection>("go"),
+                new DirectionVerb<GoDirection>("go", "walk", "travel"),
                 new DirectionVerb<GoDirection>() // To handle inputs like "north"
             );
             player.AI = playerAI;

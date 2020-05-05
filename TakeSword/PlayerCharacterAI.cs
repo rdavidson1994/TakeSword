@@ -23,7 +23,7 @@ namespace TakeSword
             {
                 if (thing.Is<Player>())
                 {
-                    return Do<UnarmedStrike>(thing);
+                    return Do<BestWeaponStrike>(thing);
                 }
             }
             return Do<WaitAction>();
@@ -42,21 +42,20 @@ namespace TakeSword
             this.userInterface = userInterface;
         }
 
+        public override void Die()
+        {
+            PrintMessages();
+            this.userInterface.PrintOutput($"You have died.");
+            // Game over. TODO: Don't be terrible
+            Environment.Exit(0);
+        }
+
         public override void RecieveTextMessage(FormattableString text)
         {
             // Save for later, when next we ask the user for input.
             // This way you see "You hit the orc. The orc dies." and not the other way around.
-            if (messagesSuspended)
-            {
-                messageQueue.Add(text);
-            }
-            else
-            {
-                userInterface.PrintOutput(text);
-            }
+            messageQueue.Add(text);
         }
-
-        private bool messagesSuspended = true;
 
         public override void ReactToAnnouncement(ActionAnnouncement announcement)
         {
