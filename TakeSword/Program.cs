@@ -112,12 +112,14 @@ namespace TakeSword
             );
             player.AI = playerAI;
             player.Act();
-
+            //PhysicalActor enemy = BanditFactory.MakeBandit();
+            //enemy.StringName = "bandit";
+            //enemy.Move(place2);
             PhysicalActor enemy = new PhysicalActor(new BasicBody(), place2)
             {
                 StringName = "enemy"
             };
-            enemy.AI = new StationaryEnemyAI(enemy);
+            enemy.AI = new WanderingEnemyAI(enemy);
             enemy.Act();
             schedule.RunFor(1000000);
         }

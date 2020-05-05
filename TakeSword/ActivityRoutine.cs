@@ -38,6 +38,18 @@ namespace TakeSword
             };
         }
 
+        // Todo: See if this is reasonable?
+        protected bool CanDo<T>(out T validActivity) where T : ISimpleActivity<TActor>, new()
+        {
+            T temp = Do<T>();
+            if (temp.IsValid()) {
+                validActivity = temp;
+                return true;
+            }
+            validActivity = default(T);
+            return false;
+        }
+
         public abstract IActivity<TActor> NextActivity();
 
         public IAction<TActor> NextAction()
