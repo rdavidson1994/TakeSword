@@ -1,4 +1,6 @@
-﻿namespace TakeSword
+﻿using SmartAnalyzers.CSharpExtensions.Annotations;
+
+namespace TakeSword
 {
     public interface IActivity<TActor>
     {

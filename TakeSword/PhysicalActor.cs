@@ -33,24 +33,30 @@ namespace TakeSword
     {
         const int BODY_UPDATE_DELTA_TIME = 1000;
         bool updatingBody  = false;
-        public PhysicalActor(IBody body, ILocation location = null, FrozenTraitStore traits = null)
+        public PhysicalActor(IBody body, ILocation? location = null, FrozenTraitStore? traits = null)
             : base(location, traits)
         {
             this.body = body;
         }
         private IBody body;
         public bool Alive { get; set; } = true;
-        protected IEvent ScheduledEvent { get; set; }
-        public IRoutine<PhysicalActor> AI { get; set; }
-        protected Dictionary<SkillType, double> skillValues;
+        protected IEvent? ScheduledEvent { get; set; }
+        public IRoutine<PhysicalActor>? AI { get; set; }
+        protected Dictionary<SkillType, double> skillValues = new Dictionary<SkillType, double>();
 
         public void Act()
         {
-            IAction<PhysicalActor> action = AI.NextAction();
-            IEvent actionEvent = new ActionEvent<PhysicalActor>() {
-                Action = action,
-                Actor = this,
-            };
+            if (AI == null)
+            {
+                // TODO: This might be worth logging a warning about
+                return;
+            }
+            IAction<PhysicalActor>? action = AI.NextAction();
+            if (action == null)
+            {
+                throw new Exception($"An AI terminated ");
+            }
+            IEvent actionEvent = new ActionEvent<PhysicalActor>(action: action, actor: this);
             ScheduledEvent = actionEvent;
             Schedule.Add(actionEvent, action.OnsetTime);
         }
@@ -98,11 +104,11 @@ namespace TakeSword
         public int MeleeDamage(GameObject weapon)
         {
             double damage = new Random().Next(10, 50);
-            if (weapon.Is(out Weapon actualWeapon))
+            if (weapon.Is(out Weapon? actualWeapon))
             {
                 damage *= actualWeapon.DamageMultiplier;
             }
-            if (Is(out PhysicalStats stats))
+            if (Is(out PhysicalStats? stats))
             {
                 damage *= stats.Strength;
             }
@@ -141,10 +147,7 @@ namespace TakeSword
         public void AttemptAction(IAction<PhysicalActor> action)
         {
             action.Attempt();
-            IEvent cooldownEvent = new CooldownEvent<PhysicalActor>()
-            {
-                Actor = this,
-            };
+            IEvent cooldownEvent = new CooldownEvent<PhysicalActor>(actor: this);
             ScheduledEvent = cooldownEvent;
             Schedule.Add(cooldownEvent, action.CooldownTime);
         }
@@ -167,7 +170,7 @@ namespace TakeSword
             ).Where(obj => obj != this);
         }
 
-        public GameObject ObjectByName(string name)
+        public GameObject? ObjectByName(string name)
         {
             var candidates = Enumerable.Concat(contents, Location.NearbyObjects(SightRange));
             foreach (GameObject thing in candidates)
@@ -203,6 +206,12 @@ namespace TakeSword
     
     public class ActionEvent<T> : IEvent
     {
+        public ActionEvent(IAction<T> action, IActor<T> actor)
+        {
+            Action = action;
+            Actor = actor;
+        }
+
         public IAction<T> Action { get; set; }
         public IActor<T> Actor { get; set; }
 
@@ -214,8 +223,12 @@ namespace TakeSword
 
     public class CooldownEvent<T> : IEvent
     {
+        public CooldownEvent(IActor<T> actor)
+        {
+            Actor = actor;
+        }
+
         public IActor<T> Actor { get; set; }
-        public IAction<T> Action { get; set; }
         public void Happen()
         {
             Actor.Act();

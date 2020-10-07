@@ -17,7 +17,7 @@ namespace TakeSword
                     return Do<BestWeaponStrike>(thing);
                 }
             }
-            Portal portal = Actor.ItemsInReach()
+            Portal? portal = Actor.ItemsInReach()
                 .OfType<Portal>()
                 .RandomChoice();
             if (portal != null)

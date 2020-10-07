@@ -14,7 +14,7 @@ namespace TakeSword
         }
 
 
-        public IActivity<PhysicalActor> Interpret(IVerbalAI<PhysicalActor> ai, string input)
+        public IActivity<PhysicalActor>? Interpret(IVerbalAI<PhysicalActor> ai, string input)
         {
             var lookupTable = Parser.Match(input);
             if (lookupTable == null)
@@ -24,7 +24,7 @@ namespace TakeSword
             return BuildActivity(ai, lookupTable);
         }
 
-        protected abstract IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup);
+        protected abstract IActivity<PhysicalActor>? BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup);
     }
 
     public class SimpleVerb<TAction> : Verb where TAction : ISimpleActivity<PhysicalActor>, new()
@@ -43,7 +43,7 @@ namespace TakeSword
     {
         public TargetVerb(params string[] synonyms) : base("VERB TARGET", synonyms) { }
 
-        protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
+        protected override IActivity<PhysicalActor>? BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
             List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
             if (targets.Count == 0)
@@ -53,8 +53,8 @@ namespace TakeSword
                     new FailedOutcome($"There is no {lookup["TARGET"]} here")
                 );
             }
-            List<TAction> activities = null;
-            List<TAction> validActivities = null;
+            List<TAction>? activities = null;
+            List<TAction>? validActivities = null;
             while (validActivities == null || validActivities.Count > 1)
             {
                 IEnumerable<TAction> query =
@@ -70,7 +70,7 @@ namespace TakeSword
                 var uniqueTargets = new HashSet<GameObject>(validTargets);
                 if (uniqueTargets.Count > 1)
                 {
-                    GameObject definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
+                    GameObject? definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
                     if (definiteTarget == null)
                     {
                         targets = new List<GameObject>(); // empty
@@ -81,7 +81,8 @@ namespace TakeSword
                     }
                 }
             }
-            if (activities.Count == 0)
+            // activities cannot be null here, because the above loop only exits if it is non-null
+            if (activities!.Count == 0)
             {
                 return null;
             }
@@ -102,7 +103,7 @@ namespace TakeSword
     {
         public ToolVerb(params string[] synonyms) : base("VERB TARGET with TOOL", synonyms) { }
 
-        protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
+        protected override IActivity<PhysicalActor>? BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
             List<GameObject> targets = ai.ObjectsWithName(lookup["TARGET"]).ToList();
             if (targets.Count == 0)
@@ -117,8 +118,8 @@ namespace TakeSword
                     ai.Actor,
                     new FailedOutcome($"There is no {lookup["TOOL"]} here.")
                 );
-            List<TAction> activities = null;
-            List<TAction> validActivities = null;
+            List<TAction>? activities = null;
+            List<TAction>? validActivities = null;
             while (validActivities == null || validActivities.Count > 1)
             {
                 IEnumerable<TAction> query =
@@ -136,7 +137,7 @@ namespace TakeSword
                 var uniqueTargets = new HashSet<GameObject>(validTargets);
                 if (uniqueTargets.Count > 1)
                 {
-                    GameObject definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
+                    GameObject? definiteTarget = ai.ChooseObject(lookup["TARGET"], uniqueTargets);
                     if (definiteTarget == null)
                     {
                         targets = new List<GameObject>(); // empty
@@ -152,7 +153,7 @@ namespace TakeSword
                     var uniqueTools = new HashSet<GameObject>(validTools);
                     if (uniqueTools.Count > 1)
                     {
-                        GameObject definiteTool = ai.ChooseObject(lookup["TOOL"], uniqueTools);
+                        GameObject? definiteTool = ai.ChooseObject(lookup["TOOL"], uniqueTools);
                         if (definiteTool == null)
                         {
                             tools = new List<GameObject>(); // empty
@@ -164,7 +165,8 @@ namespace TakeSword
                     }
                 }
             }
-            if (activities.Count == 0)
+            // activities cannot be null here, because the above loop only exits if it is non-null
+            if (activities!.Count == 0)
             {
                 return null;
             }
@@ -185,7 +187,7 @@ namespace TakeSword
         public DirectionVerb() : base("DIRECTION") { }
         public DirectionVerb(params string[] synonyms) : base("VERB DIRECTION", synonyms) { }
 
-        protected override IActivity<PhysicalActor> BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
+        protected override IActivity<PhysicalActor>? BuildActivity(IVerbalAI<PhysicalActor> ai, Dictionary<string, string> lookup)
         {
             var direction = DirectionConverter.FromString(lookup["DIRECTION"]);
             if (direction == Direction.None)

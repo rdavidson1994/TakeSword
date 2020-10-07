@@ -7,7 +7,7 @@ namespace TakeSword
 {
     public interface IParser
     {
-        Dictionary<string, string> Match(string input);
+        Dictionary<string, string>? Match(string input);
     }
     public class ParserBuilder
     {
@@ -18,7 +18,7 @@ namespace TakeSword
             {
                 this.regex = regex;
             }
-            public Dictionary<string, string> Match(string input)
+            public Dictionary<string, string>? Match(string input)
             {
                 var match = regex.Match(input);
                 if (!match.Success)
@@ -59,8 +59,7 @@ namespace TakeSword
             foreach (string word in words)
             {
                 string regexWord;
-                bool foundMacro = macros.TryGetValue(word, out string foundString);
-                if (foundMacro)
+                if (macros.TryGetValue(word, out string? foundString))
                 {
                     //Translate macros
                     regexWord = foundString;

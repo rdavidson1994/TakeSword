@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace TakeSword
@@ -26,7 +27,7 @@ namespace TakeSword
             }
         }
         public ISchedule Schedule { get; protected set; }
-        public GameObject(ILocation location = null, FrozenTraitStore traits = null)
+        public GameObject(ILocation? location = null, FrozenTraitStore? traits = null)
         {
             if (location == null)
                 location = new OffscreenLocation();
@@ -37,9 +38,10 @@ namespace TakeSword
             Location.BeEntered(this);
             Schedule = Location.Schedule;
             contents = new HashSet<GameObject>();
+            Name = new SimpleName("nameless object");
         }
 
-        public GameObject(ISchedule schedule, FrozenTraitStore traits = null)
+        public GameObject(ISchedule schedule, FrozenTraitStore? traits = null)
         {
             if (traits == null)
                 traits = FrozenTraitStore.Empty();
@@ -47,9 +49,10 @@ namespace TakeSword
             Location = new OffscreenLocation();
             Schedule = schedule;
             contents = new HashSet<GameObject>();
+            Name = new SimpleName("nameless object");
         }
 
-        public bool Is<TraitType>(out TraitType trait) where TraitType : Trait
+        public bool Is<TraitType>([NotNullWhen(true)]out TraitType? trait) where TraitType : Trait
         {
             trait = this.As<TraitType>();
             return (trait != null);
@@ -65,19 +68,14 @@ namespace TakeSword
             return Is(out TraitType _);
         }
 
-        public TraitType As<TraitType>() where TraitType : Trait
+        public TraitType? As<TraitType>() where TraitType : Trait
         {
             return traits.Get<TraitType>();
         }
 
         public ActionOutcome Is<TraitType>(FormattableString reason) where TraitType : Trait
         {
-            return Is(out TraitType _, reason);
-        }
-
-        public ActionOutcome Is<TraitType>(out TraitType trait, FormattableString reason) where TraitType : Trait
-        {
-            if (Is(out trait))
+            if (Is(out TraitType _))
             {
                 return new SuccessfulOutcome();
             }
@@ -87,20 +85,13 @@ namespace TakeSword
             }
         }
 
-        public string DisplayName(IGameObject viewer)
+        public string DisplayName(IGameObject? viewer)
         {
             if (viewer == this)
             {
                 return "you";
             }
-            if (Name != null)
-            {
-                return Name.NameWithArticle(viewer);
-            }
-            else
-            {
-                return "an unnamed object";
-            }
+            return Name.NameWithArticle(viewer);
         }
 
         public string GetName(IGameObject viewer)

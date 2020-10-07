@@ -1,4 +1,7 @@
-﻿using System;
+﻿using SmartAnalyzers.CSharpExtensions.Annotations;
+using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace TakeSword
 {
     public enum TargetType
@@ -13,6 +16,7 @@ namespace TakeSword
 
     public class Take : TargetedAction
     {
+
         private ActionOutcome DoesNotHave(GameObject gameObject)
         {
             if (Actor.HasItem(gameObject))
@@ -87,15 +91,16 @@ namespace TakeSword
 
     public class BestWeaponStrike : SingleActivity<PhysicalActor>, ITargetedActivity<PhysicalActor>
     {
+        [InitRequired]
         public GameObject Target { get; set; }
 
         public override IActivity<PhysicalActor> GetActivity()
         {
-            GameObject bestWeapon = null;
+            GameObject? bestWeapon = null;
             double bestMultiplier = 1.0;
             foreach (GameObject item in Actor.Contents)
             {
-                if (item.Is(out Weapon weapon))
+                if (item.Is(out Weapon? weapon))
                 {
                     if (weapon.DamageMultiplier > bestMultiplier)
                     {
@@ -126,7 +131,7 @@ namespace TakeSword
             if (execute)
             {
                 DamageType type = DamageType.Blunt;
-                if (Tool.Is(out Weapon weapon))
+                if (Tool.Is(out Weapon? weapon))
                 {
                     type = weapon.DamageType;
                 }
@@ -190,11 +195,13 @@ namespace TakeSword
         protected override string Name => "eat";
         protected override ActionOutcome Run(bool execute)
         {
-            ActionOutcome prereqs =
-                Target.Is(out Food food, $"{Target} isn't edible.")
-                && Has(Target);
-
-            if (!prereqs) return prereqs;
+            if (!Target.Is(out Food? food))
+            {
+                return Fail($"{Target} isn't edible.");
+            }
+            if (Has(Target) is FailedOutcome notHoldingFood) {
+                return notHoldingFood;
+            }
 
             if (execute)
             {

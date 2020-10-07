@@ -16,11 +16,11 @@ namespace TakeSword
 
         public bool RunOnce()
         {
-            if (events.Count == 0)
+            if (events.First == null)
             {
                 return false;
             }
-            var tuple = events.First.Value;
+            Tuple<IEvent, long> tuple = events.First.Value;
             IEvent nextEvent = tuple.Item1;
             currentTime = tuple.Item2;
             nextEvent.Happen();
@@ -28,12 +28,18 @@ namespace TakeSword
             return true;
         }
 
+        public void RunUntilEnd()
+        {
+            // Run until the "RunOnce" method returns false, indcating no more events
+            while (RunOnce());
+        }
+
         public bool RunFor(long deltaTime)
         {
             long endTime = currentTime + deltaTime;
             while (true)
             {
-                if (events.Count == 0)
+                if (events.First == null)
                 {
                     return currentTime == endTime;
                 }
@@ -58,7 +64,7 @@ namespace TakeSword
             long time = currentTime + delay;
             var entry = Tuple.Create(event1, time);
 
-            LinkedListNode<Tuple<IEvent, long>> node = events.First;
+            LinkedListNode<Tuple<IEvent, long>>? node = events.First;
             while (node != null)
             {
                 if (time < node.Value.Item2)

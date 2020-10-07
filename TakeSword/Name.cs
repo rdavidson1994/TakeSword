@@ -8,8 +8,10 @@ namespace TakeSword
     public interface IName
     {
         bool Matches(IGameObject viewer, string text);
-        string GetName(IGameObject viewer);
-        string NameWithArticle(IGameObject viewer);
+
+        // Null indicates the "objectively true" name
+        string GetName(IGameObject? viewer);
+        string NameWithArticle(IGameObject? viewer);
         IName Extend(Func<string, string> displayTransform, params string[] extraSynonyms);
     }
 
@@ -37,7 +39,7 @@ namespace TakeSword
             synonyms = new HashSet<string>(allSynonyms);
             this.isProper = isProper;
         }
-        public string NameWithArticle(IGameObject viewer)
+        public string NameWithArticle(IGameObject? viewer)
         {
             if (isProper)
             {
@@ -49,7 +51,7 @@ namespace TakeSword
             }
         }
 
-        public string GetName(IGameObject viewer)
+        public string GetName(IGameObject? viewer)
         {
             return displayName;
         }
@@ -86,7 +88,7 @@ namespace TakeSword
             this.isProper = isProper;
         }
 
-        public string NameWithArticle(IGameObject viewer)
+        public string NameWithArticle(IGameObject? viewer)
         {
             if (isProper)
             {
@@ -98,7 +100,7 @@ namespace TakeSword
             }
         }
 
-        public string GetName(IGameObject viewer)
+        public string GetName(IGameObject? viewer)
         {
             return name;
         }

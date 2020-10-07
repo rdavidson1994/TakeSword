@@ -6,7 +6,7 @@ namespace TakeSword
 {
     public interface ITraitStore
     {
-        T Get<T>() where T : Trait;
+        T? Get<T>() where T : Trait;
         FrozenTraitStore Freeze();
     }
 
@@ -26,7 +26,7 @@ namespace TakeSword
             }
             return traitStore.Freeze();
         }
-        static FrozenTraitStore empty;
+        static FrozenTraitStore? empty;
         private TraitStore innerStore;
         private FrozenTraitStore(TraitStore traitStore, bool createCopy)
         {
@@ -49,7 +49,7 @@ namespace TakeSword
             return this;
         }
 
-        public T Get<T>() where T : Trait
+        public T? Get<T>() where T : Trait
         {
             return innerStore.Get<T>();
         }
@@ -88,11 +88,10 @@ namespace TakeSword
             return new FrozenTraitStore(this);
         }
 
-        public T Get<T>() where T : Trait
+        public T? Get<T>() where T : Trait
         {
             Type directTraitSubtype = Trait.DirectSubtype<T>();
-            bool success = data.TryGetValue(directTraitSubtype, out Trait outTrait);
-            if (success)
+            if (data.TryGetValue(directTraitSubtype, out Trait? outTrait))
                 return (T)outTrait;
             return null;
         }
@@ -145,25 +144,29 @@ namespace TakeSword
     public class MirrorTraitStore : IWritableTraitStore
     {
         private FrozenTraitStore baseStore;
-        private TraitStore liveStore;
+        private TraitStore? liveStore;
         private ITraitStore activeStore;
         public MirrorTraitStore(FrozenTraitStore basis)
         {
             this.baseStore = basis;
             this.activeStore = basis;
         }
-        private void CreateLiveStoreIfNeeded()
+        private IWritableTraitStore CreateLiveStoreIfNeeded()
         {
-            if (activeStore == baseStore)
+            if (activeStore is IWritableTraitStore writableTraitStore)
+            {
+                return writableTraitStore;
+            }
+            else
             {
                 liveStore = baseStore.LiveCopy();
                 activeStore = liveStore;
+                return liveStore;
             }
         }
         public void Add<T>(T newTrait) where T : Trait
         {
-            CreateLiveStoreIfNeeded();
-            liveStore.Add<T>(newTrait);
+            CreateLiveStoreIfNeeded().Add(newTrait);
         }
 
         public FrozenTraitStore Freeze()
@@ -172,15 +175,14 @@ namespace TakeSword
             return activeStore.Freeze();
         }
 
-        public T Get<T>() where T : Trait
+        public T? Get<T>() where T : Trait
         {
             return activeStore.Get<T>();
         }
 
         public bool Remove<T>() where T : Trait
         {
-            CreateLiveStoreIfNeeded();
-            return liveStore.Remove<T>();
+            return CreateLiveStoreIfNeeded().Remove<T>();
         }
     }
 }

@@ -1,10 +1,13 @@
-﻿using System;
+﻿using SmartAnalyzers.CSharpExtensions.Annotations;
+using System;
 using System.Collections.Generic;
 namespace TakeSword
 {
     public abstract class ToolAction : PhysicalAction, IToolActivity<PhysicalActor>
     {
+        [InitRequired]
         public GameObject Tool { get; set; }
+        [InitRequired]
         public GameObject Target { get; set; }
 
         public override FormattableString AnnouncementText(IGameObject viewer)

@@ -115,7 +115,7 @@ namespace TakeSwordTests
             ISchedule schedule = new ScheduleStub();
             GameObject gameObject = new GameObject();
             gameObject.AddTrait(trait);
-            TraitStub retrievedTrait = gameObject.As<TraitStub>();
+            TraitStub? retrievedTrait = gameObject.As<TraitStub>();
             Assert.AreEqual(trait, retrievedTrait);
         }
         [Test]
@@ -124,7 +124,7 @@ namespace TakeSwordTests
             TraitStub trait = new TraitStub();
             ISchedule schedule = new ScheduleStub();
             GameObject gameObject = new GameObject();
-            TraitStub retrievedTrait = gameObject.As<TraitStub>();
+            TraitStub? retrievedTrait = gameObject.As<TraitStub>();
             Assert.IsNull(retrievedTrait);
         }
         [Test]
@@ -143,7 +143,7 @@ namespace TakeSwordTests
             GameObject item2 = new GameObject(traits: initialTraits);
             item.RemoveTrait<TraitStub>();
             Assert.IsNull(item.As<TraitStub>());
-            Assert.AreEqual(10, item2.As<TraitStub>().traitProperty);
+            Assert.AreEqual(10, item2.As<TraitStub>()!.traitProperty);
         }
 
         [Test]

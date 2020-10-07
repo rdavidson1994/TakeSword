@@ -121,7 +121,7 @@ namespace TakeSword
             };
             enemy.AI = new WanderingEnemyAI(enemy);
             enemy.Act();
-            schedule.RunFor(1000000);
+            schedule.RunUntilEnd();
         }
     }
 }

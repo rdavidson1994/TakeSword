@@ -1,14 +1,18 @@
-﻿using System;
+﻿using SmartAnalyzers.CSharpExtensions.Annotations;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 
 namespace TakeSword
 {
     public abstract class ActivityRoutine<TActor> : IRoutine<TActor>
     {
         public virtual FormattableString EmptyReason { get; protected set; } = $"You can't do that right now.";
-        private IRoutine<TActor> Routine { get; set; }
-        protected IAction<TActor> StoredAction { get; private set; }
+        private IRoutine<TActor>? Routine { get; set; }
+        protected IAction<TActor>? StoredAction { get; private set; }
+        [InitRequired]
         public TActor Actor { get; set; }
         // Convenience "Do" functions, to make returning new actions less error-prone
         protected T Do<T>() where T : ISimpleActivity<TActor>, new()
@@ -39,20 +43,20 @@ namespace TakeSword
         }
 
         // Todo: See if this is reasonable?
-        protected bool CanDo<T>(out T validActivity) where T : ISimpleActivity<TActor>, new()
+        protected bool CanDo<T>([MaybeNullWhen(false)] out T validActivity) where T : ISimpleActivity<TActor>, new()
         {
             T temp = Do<T>();
             if (temp.IsValid()) {
                 validActivity = temp;
                 return true;
             }
-            validActivity = default(T);
+            validActivity = default;
             return false;
         }
 
-        public abstract IActivity<TActor> NextActivity();
+        public abstract IActivity<TActor>? NextActivity();
 
-        public IAction<TActor> NextAction()
+        public IAction<TActor>? NextAction()
         {
             if (StoredAction != null)
             {
@@ -63,7 +67,7 @@ namespace TakeSword
             }
             if (Routine != null)
             {
-                IAction<TActor> action = Routine.NextAction();
+                IAction<TActor>? action = Routine.NextAction();
                 if (action != null)
                 {
                     return action;
@@ -74,7 +78,7 @@ namespace TakeSword
                 }
             }
 
-            IActivity<TActor> activity = NextActivity();
+            IActivity<TActor>? activity = NextActivity();
             if (activity == null)
             {
                 return null;
@@ -91,7 +95,7 @@ namespace TakeSword
         }
 
         //Return the next action, but don't discard it
-        public IAction<TActor> Peek()
+        public IAction<TActor>? Peek()
         {
             if (StoredAction == null)
             {
@@ -132,9 +136,9 @@ namespace TakeSword
     {
         private bool done = false;
 
-        public abstract IActivity<TActor> GetActivity();
+        public abstract IActivity<TActor>? GetActivity();
 
-        public override IActivity<TActor> NextActivity()
+        public override IActivity<TActor>? NextActivity()
         {
             if (done)
             {
@@ -163,7 +167,7 @@ namespace TakeSword
 
         //public override TActor Actor { get; set; }
 
-        public override IActivity<TActor> NextActivity()
+        public override IActivity<TActor>? NextActivity()
         {
             if (done)
             {
@@ -194,7 +198,7 @@ namespace TakeSword
             activityEnumerator?.Dispose();
         }
 
-        public override IActivity<TActor> NextActivity()
+        public override IActivity<TActor>? NextActivity()
         {
             if (activityEnumerator.MoveNext())
             {
@@ -232,18 +236,18 @@ namespace TakeSword
         public Direction Direction { get; set; }
        // public override PhysicalActor Actor { get; set; }
 
-        public override IActivity<PhysicalActor> GetActivity()
+        public override IActivity<PhysicalActor>? GetActivity()
         {
-            IEnumerable<Portal> portals = Actor.ItemsInReach()
+            IEnumerable<Portal?> portals = Actor.ItemsInReach()
                 .Select(item => item as Portal)
                 .Where(portal => portal != null && portal.Direction == Direction);
-            Portal foundPortal = portals.FirstOrDefault();
+            Portal? foundPortal = portals.FirstOrDefault();
             if (foundPortal == null)
             {
                 EmptyReason = $"There is no portal facing {Direction}";
                 return null;
             }
-            return Do<Enter>(portals.FirstOrDefault());
+            return Do<Enter>(foundPortal);
         }
     }
 }

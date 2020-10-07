@@ -8,6 +8,10 @@
                 return notInReach;
             if (Target is Portal portal)
             {
+                if (portal.Opposite == null)
+                {
+                    return Fail($"{Target} does not lead anywhere.");
+                }
                 if (execute)
                 {
                     Actor.Move(portal.Opposite.Location);

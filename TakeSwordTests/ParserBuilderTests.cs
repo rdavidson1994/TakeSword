@@ -42,7 +42,7 @@ namespace TakeSwordTests
         {
             IParser parser = new ParserBuilder().CreateParser("CAPTURE then literal");
             var lookupTable = parser.Match("some text then literal");
-            Assert.AreEqual("some text", lookupTable["CAPTURE"]);
+            Assert.AreEqual("some text", lookupTable!["CAPTURE"]);
             Assert.AreEqual(lookupTable.Count, 1);
         }
 

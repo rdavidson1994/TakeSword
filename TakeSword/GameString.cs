@@ -7,7 +7,7 @@ namespace TakeSword
 {
     public class GameString
     {
-        public GameString(string[] literals, object[] variables)
+        public GameString(string[] literals, object?[] variables)
         {
             if (literals.Length != variables.Length + 1)
             {
@@ -17,7 +17,7 @@ namespace TakeSword
             Variables = variables;
         }
         public string[] Literals { get; }
-        public object[] Variables { get; }
+        public object?[] Variables { get; }
         public GameString(FormattableString formattableString)
         {
             Literals = Regex.Split(formattableString.Format, @"{\d+}");
@@ -35,7 +35,7 @@ namespace TakeSword
             IEnumerable<string> secondExceptFirst = second.Literals.Skip(1);
             string newMiddle = first.Literals[first.Literals.Length - 1] + second.Literals[0];
             string[] newLiterals = firstExceptLast.Append(newMiddle).Concat(secondExceptFirst).ToArray();
-            object[] newVariables = first.Variables.Concat(second.Variables).ToArray();
+            object?[] newVariables = first.Variables.Concat(second.Variables).ToArray();
             return new GameString(newLiterals, newVariables);
         }
     }

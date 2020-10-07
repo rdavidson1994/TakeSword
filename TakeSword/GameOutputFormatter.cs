@@ -5,32 +5,38 @@ using Newtonsoft.Json;
 
 namespace TakeSword
 {
-    public class ObjectGloss
-    {
-        public GameObject Topic { get; set; }
-        public string Text { get; set; }
-    }
-
     public class ConsoleOutputFormatter : IGameOutputFormatter
     {
-        public IVerbalAI<PhysicalActor> VerbalAI { get; set; }
+        public IVerbalAI<PhysicalActor>? VerbalAI { get; set; }
         public string FormatString(FormattableString formattableString)
         {
             var pieces = Regex.Split(formattableString.Format, @"{\d+}");
-            var arguments = formattableString.GetArguments();
+            object?[] arguments = formattableString.GetArguments() ?? new object?[] { };
+           
             var argumentCount = formattableString.ArgumentCount;
             List<string> outList = new List<string>();
             for (int i=0; i<argumentCount; i++)
             {
                 outList.Add(pieces[i]);
-                object argument = arguments[i];
+                object? argument = arguments[i];
                 if (argument is GameObject gameObject)
                 {
-                    outList.Add(gameObject.DisplayName(VerbalAI.Actor));
+                    if (VerbalAI != null)
+                    {
+                        outList.Add(gameObject.DisplayName(VerbalAI.Actor));
+                    }
+                    else
+                    {
+                        outList.Add(gameObject.DisplayName(null));
+                    }
+                }
+                else if (argument != null)
+                {
+                    outList.Add(argument.ToString() ?? "");
                 }
                 else
                 {
-                    outList.Add(argument.ToString());
+                    outList.Add("");
                 }
             }
             outList.Add(pieces[argumentCount]);

@@ -14,10 +14,10 @@ namespace TakeSword
                 throw new NotSupportedException();
             }
             Type nextType = currentType;
-            while (nextType != typeof(Trait))
+            while (nextType != typeof(Trait) && nextType != null)
             {
                 currentType = nextType;
-                nextType = currentType.BaseType;
+                nextType = currentType.BaseType ?? typeof(object);
             }
             return currentType;
         }

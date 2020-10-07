@@ -6,6 +6,6 @@ namespace TakeSword
     {
         //AI routines that can provide token resolution for verbs.
         IEnumerable<GameObject> ObjectsWithName(string name);
-        GameObject ChooseObject(string input, IEnumerable<GameObject> objects);
+        GameObject? ChooseObject(string input, IEnumerable<GameObject> objects);
     }
 }

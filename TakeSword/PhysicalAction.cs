@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartAnalyzers.CSharpExtensions.Annotations;
+using System;
 using System.Collections.Generic;
 namespace TakeSword
 {
@@ -24,6 +25,7 @@ namespace TakeSword
         }
         public virtual long OnsetTime { get; set; } = 750;
         public virtual long CooldownTime { get; set; } = 250;
+        [InitRequired]
         public PhysicalActor Actor { get; set; }
         protected ActionOutcome Succeed()
         {

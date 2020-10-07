@@ -5,12 +5,12 @@ namespace TakeSword
     public class Portal : GameObject
     {
         public Direction Direction { get; protected set; }
-        public Portal Opposite { get; protected set; }
+        public Portal? Opposite { get; protected set; }
 
         public Portal(
             Direction direction,
-            ILocation location = null,
-            FrozenTraitStore traits = null
+            ILocation? location = null,
+            FrozenTraitStore? traits = null
         ) : base(location, traits)
         {
             Direction = direction;
@@ -18,8 +18,8 @@ namespace TakeSword
 
         public Portal(
             Portal opposite,
-            ILocation location=null,
-            FrozenTraitStore traits=null,
+            ILocation? location=null,
+            FrozenTraitStore? traits=null,
             Direction? direction=null
         ) : base (location, traits)
         {

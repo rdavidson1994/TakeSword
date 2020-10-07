@@ -8,7 +8,7 @@ namespace TakeSword
     {
         private List<FormattableString> messageQueue = new List<FormattableString>();
         private IUserInterface userInterface;
-        private string storedInput;
+        private string? storedInput;
         private List<Verb> verbs = new List<Verb>();
         public PlayerCharacterAI(PhysicalActor actor, IUserInterface userInterface)
         {
@@ -36,7 +36,7 @@ namespace TakeSword
             // This method prints output IMMEDIATELY, rather than adding to the message queue.
             // This way you see "You hit the orc. The orc dies." and not the other way around.
             base.ReactToAnnouncement(announcement);
-            if (announcement.IsSuccessful(out PhysicalAction physicalAction, TargetType.Witness))
+            if (announcement.IsSuccessful(out PhysicalAction? physicalAction, TargetType.Witness))
             {
                 if (physicalAction.Quiet && physicalAction.Actor == this.Actor)
                 {
@@ -90,7 +90,7 @@ namespace TakeSword
                     input = GetUserInput();
                 }
 
-                FailedOutcome backupOutcome = null;
+                FailedOutcome? backupOutcome = null;
                 foreach (Verb verb in verbs)
                 {
                     var activity = verb.Interpret(this, input);
@@ -122,7 +122,7 @@ namespace TakeSword
             }
         }
 
-        public GameObject ChooseObject(string name, IEnumerable<GameObject> objects)
+        public GameObject? ChooseObject(string name, IEnumerable<GameObject> objects)
         {
             var candidates = objects.ToList();
             while (candidates.Count > 1)

@@ -26,7 +26,7 @@ namespace TakeSword
         }
         public FormattableString Build()
         {
-            IEnumerable<object> allArgs = formattableStrings.SelectMany(f => f.GetArguments());
+            IEnumerable<object?> allArgs = formattableStrings.SelectMany(f => f.GetArguments());
             string joinedFormats = string.Join("", formattableStrings.Select(x => x.Format));
             return FormattableStringFactory.Create(joinedFormats, allArgs.ToArray());
         }
